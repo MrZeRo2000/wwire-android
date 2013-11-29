@@ -1,0 +1,2 @@
+cls
+cscript ind.vbs
