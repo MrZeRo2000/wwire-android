@@ -31,7 +31,7 @@ public final class GLES20ShaderCode {
 			+	" vPosition = aPosition;							\n"
 			+	" vec3 nNormal = normalize(aNormal);				\n"
 			+	" vNormal = nNormal;								\n"
-			+	" vCamera = vec3(10.0, 10.0, 0.0);				\n"
+			+	" vCamera = vec3(10.0, 10.0, 0);	   			\n"
 			+	" gl_Position = u_MVPMatrix*vec4(aPosition, 1.0);	\n"
 			+	"}													\n";
 
@@ -52,8 +52,8 @@ public final class GLES20ShaderCode {
 			//+   "  vec3 nCamera = vec3(10.0,10.0,0.0);			 		\n"
 			+	"  vec3 lightvector = normalize(nCamera - vPosition); 	\n"
 			+ 	"  vec3 lookvector = normalize(nCamera - vPosition);  	\n"
-            +	"  float ambient=0.6;									\n"
-            +	"  float k_diffuse=0.3;									\n"
+            +	"  float ambient=0.3;									\n"
+            +	"  float k_diffuse=0.6;									\n"
             +	"  float k_specular=0.0;								\n"
             +	"  float diffuse = k_diffuse * max(dot(nNormal, lightvector), 0.0);				\n"
             +	"  vec3 reflectvector = reflect(-lightvector, nNormal);							\n"

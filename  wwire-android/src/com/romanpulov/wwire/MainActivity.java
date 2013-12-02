@@ -16,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TabHost;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
@@ -58,7 +57,7 @@ public class MainActivity extends Activity {
 				@Override
 				public boolean accept(File dir, String filename) {
 					// TODO Auto-generated method stub
-					return filename.toUpperCase().endsWith("WW1");
+					return filename.toUpperCase(Locale.US).endsWith("WW1");					
 				}
 			});
 		}
@@ -92,7 +91,7 @@ public class MainActivity extends Activity {
 	private void setupViewSelector() {
 		Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
 		ArrayAdapter<String> fileSelectorAdapter = new ArrayAdapter<String>(
-				this, android.R.layout.simple_spinner_item, GLES20DrawerFactory.getInstance().DrawerListTitle);
+				this, android.R.layout.simple_spinner_item, GLES20DrawerFactory.DrawerListTitle);
 		fileSelectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mViewSelector.setAdapter(fileSelectorAdapter);
 		mViewSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
