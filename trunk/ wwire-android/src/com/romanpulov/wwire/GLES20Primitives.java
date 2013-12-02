@@ -1,8 +1,5 @@
 package com.romanpulov.wwire;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;

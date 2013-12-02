@@ -45,6 +45,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
 		float[] vertexWF = diagramData.getVertexWF();
 		float[] normal = diagramData.getNormal();
 		short[] indices = diagramData.getVertexIndices();
+		short[] wfIndices = diagramData.getVertexWFIndices();
 		
 		GLES20Primitives primitives = new GLES20Primitives();
 		
@@ -61,8 +62,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
 		mWFSurface = primitives.new Surface(
 				vertexWF, 
 				normal,				
-				//indices,
-				new short[] {1, 13, 25, 37, 49, 61, 11, 23, 35, 47, 59, 71, 1, 2, 14, 26},
+				wfIndices,
 				new float[] {0.0f, 0.5f, 0.0f},
 				GLES20.GL_LINE_STRIP);
 		
