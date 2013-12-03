@@ -3,14 +3,23 @@ package com.romanpulov.wwire;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Log;
 
 public final class GLES20Primitives {
 	
 	public interface ModelDrawer {		
-		public void drawElements(GL10 gl, float[] mvpMatrix);
+		public void drawElements(GL10 gl, GLES20Matrix matrix);
 		public void initElements();
 		public void invalidate();
+	}
+	
+	public class GLES20Matrix {
+		public float[] model = new float[16];
+		public float[] view = new float[16];
+		public int[] viewport = new int[4];
+		public float[] projection = new float[16];
+		public float[] mvp = new float[16];
 	}
 	
 	public class Line extends GLES20Shader {
@@ -53,7 +62,7 @@ public final class GLES20Primitives {
 		}
 		
 		@Override
-		public void draw(GL10 gl, float[] MVPMatrix) {
+		public void draw(GL10 gl, GLES20Matrix matrix) {
 			GLES20.glUseProgram(mProgram);
 			Log.d("Draw", getClass().toString() + " use program = " + String.valueOf(mProgram));
 		    GLES20.glVertexAttribPointer(mLineAVertexLocation, 3, GLES20.GL_FLOAT, false, 0, mVFB);
@@ -62,7 +71,7 @@ public final class GLES20Primitives {
 		    GLES20.glUniform3fv(mLineAColorLocation, 1, mCFB);		    
 		    
 		    GLES20.glLineWidth(2);		    
-		    GLES20.glUniformMatrix4fv(mLineMVPMatrixHandle, 1, false, MVPMatrix, 0);
+		    GLES20.glUniformMatrix4fv(mLineMVPMatrixHandle, 1, false, matrix.mvp, 0);
 		    GLES20.glDrawArrays(GLES20.GL_LINES, 0, mVFB.capacity()/3);
 		    //GLES20.glDrawElements(GLES20.GL_LINES, 6, GLES20.GL_UNSIGNED_SHORT, mISB);		    
 		}
@@ -89,6 +98,7 @@ public final class GLES20Primitives {
 	public class Surface extends GLES20Shader {
 		//shader locations
 		private int mSurfaceMVPMatrixHandle;
+		private int mSurfaceModelMatrixHandle;
 		private int mSurfaceAVertexLocation;
 		private int mSurfaceANormalLocation;
 		private int mSurfaceAColorLocation;
@@ -129,7 +139,8 @@ public final class GLES20Primitives {
 		@Override
 		public int createProgram() {
 			int program = super.createProgram();
-			mSurfaceMVPMatrixHandle = GLES20.glGetUniformLocation(program, "u_MVPMatrix");        
+			mSurfaceMVPMatrixHandle = GLES20.glGetUniformLocation(program, "u_MVPMatrix");
+			mSurfaceModelMatrixHandle = GLES20.glGetUniformLocation(program, "u_ModelMatrix");
 			mSurfaceAVertexLocation = GLES20.glGetAttribLocation(program, "aPosition");
 			mSurfaceANormalLocation = GLES20.glGetAttribLocation(program, "aNormal");
 			mSurfaceAColorLocation = GLES20.glGetUniformLocation(program, "uColor");
@@ -138,7 +149,7 @@ public final class GLES20Primitives {
 		}
 
 		@Override
-		public void draw(GL10 gl, float[] MVPMatrix) {
+		public void draw(GL10 gl, GLES20Matrix matrix) {
 			// TODO Auto-generated method stub
 			GLES20.glUseProgram(mProgram);
 			Log.d("Draw", getClass().toString() + " use program = " + String.valueOf(mProgram));
@@ -151,7 +162,8 @@ public final class GLES20Primitives {
 		    //color
 		    GLES20.glUniform3fv(mSurfaceAColorLocation, 1, mCFB);
 		    //matrix
-		    GLES20.glUniformMatrix4fv(mSurfaceMVPMatrixHandle, 1, false, MVPMatrix, 0);
+		    GLES20.glUniformMatrix4fv(mSurfaceMVPMatrixHandle, 1, false, matrix.mvp, 0);
+		    GLES20.glUniformMatrix4fv(mSurfaceModelMatrixHandle, 1, false, matrix.model, 0);
 		    //elements
 		    GLES20.glDrawElements(mSurfaceMode, mSurfaceISA.length, GLES20.GL_UNSIGNED_SHORT, mISB);
 		}

@@ -2,6 +2,8 @@ package com.romanpulov.wwire;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import com.romanpulov.wwire.GLES20Primitives.GLES20Matrix;
+
 import android.opengl.GLES20;
 
 public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
@@ -15,21 +17,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
 	boolean prepared = false;
 
 	@Override
-	public void drawElements(GL10 gl, float[] mvpMatrix) {
-		// TODO Auto-generated method stub
-		if (!prepared) {
-			initElements();
-			prepared = true;			
-		}
-		mSurface.draw(gl, mvpMatrix);
-		GLES20.glLineWidth(1.0f);
-		mWFSurface.draw(gl, mvpMatrix);
-	}
-
-	@Override
-	public void initElements() {
-		// TODO Auto-generated method stub
-
+	public void drawElements(GL10 gl, GLES20Matrix matrix) {
 		//depth test on
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         
@@ -39,6 +27,19 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
         
         //culling on
         GLES20.glEnable(GLES20.GL_CULL_FACE);
+        
+		if (!prepared) {
+			initElements();
+			prepared = true;			
+		}
+		mSurface.draw(gl, matrix);
+		GLES20.glLineWidth(1.0f);
+		mWFSurface.draw(gl, matrix);
+	}
+
+	@Override
+	public void initElements() {
+		// TODO Auto-generated method stub
 		
 		diagramData = new DiagramData();
 		float[] vertex = diagramData.getVertex();

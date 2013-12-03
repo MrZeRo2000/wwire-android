@@ -2,6 +2,8 @@ package com.romanpulov.wwire;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import com.romanpulov.wwire.GLES20Primitives.GLES20Matrix;
+
 import android.opengl.GLES20;
 
 public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
@@ -13,8 +15,7 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
 	boolean prepared = false;
 
 	@Override
-	public void drawElements(GL10 gl, float[] mvpMatrix) {
-		// TODO Auto-generated method stub
+	public void drawElements(GL10 gl, GLES20Matrix matrix) {
 		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 		
 		if (!prepared) {
@@ -23,9 +24,9 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
 				prepared = true;
 		}
 		if (prepared) {	
-			mSegments.draw(gl, mvpMatrix);
+			mSegments.draw(gl, matrix);
 			if (null != mSources) {
-				mSources.draw(gl, mvpMatrix);
+				mSources.draw(gl, matrix);
 			}
 		}
 	}
