@@ -65,7 +65,7 @@ public abstract class GLES20Shader {
 	
 	public abstract void initBuffers();
 	
-	public abstract void draw(GL10 gl, float[] MVPMatrix);
+	public abstract void draw(GL10 gl, GLES20Primitives.GLES20Matrix matrix);
 
 	protected int loadShader(int type, String source)  {
 		int shader = GLES20.glCreateShader(type);

@@ -60,11 +60,11 @@ public class DiagramData {
 				for (int t = 0; t < mLT; t++) {
 					 double thet = t * mDT * Math.PI / 180.0;
 					 int idx = p * mLT + t;
-					 DiagramData.sphereToCube(/*mGaint[idx]*/0.99f, phi, thet, point);
+					 DiagramData.sphereToCube(mGaint[idx]*0.99f, phi, thet, point);
 					 mVertex[idx*3] = point[0];
 					 mVertex[idx*3 + 1] = point[1];
 					 mVertex[idx*3 + 2] = point[2];				 
-					 DiagramData.sphereToCube(/*mGaint[idx]*/1.0f, phi, thet, point);
+					 DiagramData.sphereToCube(mGaint[idx]*1.0f, phi, thet, point);
 					 mVertexWF[idx*3] = point[0];
 					 mVertexWF[idx*3 + 1] = point[1];
 					 mVertexWF[idx*3 + 2] = point[2];
