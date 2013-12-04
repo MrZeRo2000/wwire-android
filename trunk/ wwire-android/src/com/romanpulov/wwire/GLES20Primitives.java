@@ -10,12 +10,13 @@ public final class GLES20Primitives {
 	
 	public interface ModelDrawer {		
 		public void drawElements(GL10 gl, GLES20Matrix matrix);
-		public void initElements();
+		public void initElements(GLES20Matrix matrix);
 		public void invalidate();
 	}
 	
 	public class GLES20Matrix {
 		public float[] model = new float[16];
+		public float[] normal = new float[16];
 		public float[] view = new float[16];
 		public int[] viewport = new int[4];
 		public float[] projection = new float[16];
@@ -99,6 +100,7 @@ public final class GLES20Primitives {
 		//shader locations
 		private int mSurfaceMVPMatrixHandle;
 		private int mSurfaceModelMatrixHandle;
+		private int mSurfaceNormalMatrixHandle;
 		private int mSurfaceAVertexLocation;
 		private int mSurfaceANormalLocation;
 		private int mSurfaceAColorLocation;
@@ -141,6 +143,7 @@ public final class GLES20Primitives {
 			int program = super.createProgram();
 			mSurfaceMVPMatrixHandle = GLES20.glGetUniformLocation(program, "u_MVPMatrix");
 			mSurfaceModelMatrixHandle = GLES20.glGetUniformLocation(program, "u_ModelMatrix");
+			mSurfaceNormalMatrixHandle = GLES20.glGetUniformLocation(program, "u_NormalMatrix");
 			mSurfaceAVertexLocation = GLES20.glGetAttribLocation(program, "aPosition");
 			mSurfaceANormalLocation = GLES20.glGetAttribLocation(program, "aNormal");
 			mSurfaceAColorLocation = GLES20.glGetUniformLocation(program, "uColor");
@@ -164,6 +167,7 @@ public final class GLES20Primitives {
 		    //matrix
 		    GLES20.glUniformMatrix4fv(mSurfaceMVPMatrixHandle, 1, false, matrix.mvp, 0);
 		    GLES20.glUniformMatrix4fv(mSurfaceModelMatrixHandle, 1, false, matrix.model, 0);
+		    GLES20.glUniformMatrix4fv(mSurfaceNormalMatrixHandle, 1, false, matrix.normal, 0);
 		    //elements
 		    GLES20.glDrawElements(mSurfaceMode, mSurfaceISA.length, GLES20.GL_UNSIGNED_SHORT, mISB);
 		}

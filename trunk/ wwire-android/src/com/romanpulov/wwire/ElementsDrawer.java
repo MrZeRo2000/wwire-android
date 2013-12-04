@@ -19,7 +19,7 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
 		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 		
 		if (!prepared) {
-			initElements();
+			initElements(matrix);
 			if (null != mSegments)
 				prepared = true;
 		}
@@ -38,7 +38,7 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
 	}
 
 	@Override
-	public void initElements() {
+	public void initElements(GLES20Matrix matrix) {
 		// TODO Auto-generated method stub	
 		
 		

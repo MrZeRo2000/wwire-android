@@ -81,8 +81,10 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	private class RevertHandler extends TouchHandler {
 		@Override
 		public void perform() {
-			if (mActive)
+			if (mActive) {
 				Matrix.setIdentityM(mMatrix.model, 0);
+				Matrix.setIdentityM(mMatrix.normal, 0);
+			}
 		}
 	}
 	
@@ -108,6 +110,8 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 			if (mActive) {				
 				Matrix.rotateM(mMatrix.model, 0, mNewPos.x - mOldPos.x, 0.0f, 0.0f, 1.0f);
 				Matrix.rotateM(mMatrix.model, 0, - (mNewPos.y - mOldPos.y), 1.0f, -1.0f, 0.0f);				
+				Matrix.rotateM(mMatrix.normal, 0, mNewPos.x - mOldPos.x, 0.0f, 0.0f, 1.0f);
+				Matrix.rotateM(mMatrix.normal, 0, - (mNewPos.y - mOldPos.y), 1.0f, -1.0f, 0.0f);
 			}
 		}		
 	}
@@ -182,6 +186,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		Matrix.setLookAtM(mMatrix.view, 0, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 		//Matrix.setIdentityM(mViewMatrix, 0);
 		Matrix.setIdentityM(mMatrix.model, 0);		
+		Matrix.setIdentityM(mMatrix.normal, 0);
 	}
 	
 	@Override
@@ -195,7 +200,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		mAxes.createProgram();		
 		
 		if (null != mModelDrawer)
-			mModelDrawer.initElements();		
+			mModelDrawer.initElements(mMatrix);		
 		
 		if (height > width)
 			Matrix.orthoM(mMatrix.projection, 0, -1.0f, 1.0f, (float) -height / width, (float) height / width, -1.0f, 50.0f);
@@ -219,7 +224,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 			mModelDrawer.drawElements(gl, mMatrix);
 		else
 			Log.d("Draw", "Drawer not assigned");		
-        
+        		
 		Log.i("Draw", "OnDraw");
 	}
 	

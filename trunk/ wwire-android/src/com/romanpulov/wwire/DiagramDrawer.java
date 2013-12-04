@@ -29,7 +29,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         
 		if (!prepared) {
-			initElements();
+			initElements(matrix);
 			prepared = true;			
 		}
 		mSurface.draw(gl, matrix);
@@ -38,10 +38,12 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
 	}
 
 	@Override
-	public void initElements() {
+	public void initElements(GLES20Matrix matrix) {
 		// TODO Auto-generated method stub
+		float pixWidth = (float) 2.0 / Math.min(matrix.viewport[3], matrix.viewport[2]);
 		
-		diagramData = new DiagramData();
+		diagramData = new DiagramData(pixWidth);		 
+		
 		float[] vertex = diagramData.getVertex();
 		float[] vertexWF = diagramData.getVertexWF();
 		float[] normal = diagramData.getNormal();
