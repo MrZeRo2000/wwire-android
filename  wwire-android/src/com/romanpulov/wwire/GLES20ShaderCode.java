@@ -22,6 +22,7 @@ public final class GLES20ShaderCode {
 	public static String SURFACE_VERTEX_SHADER_CODE =
 				"uniform mat4 u_MVPMatrix;      					\n"
 			+	"uniform mat4 u_ModelMatrix;							\n"
+			+	"uniform mat4 u_NormalMatrix;							\n"
 			+	"attribute vec3 aPosition;							\n"
 			+	"attribute vec3 aNormal;							\n"
 			+	"varying vec3 vPosition;							\n"
@@ -33,7 +34,7 @@ public final class GLES20ShaderCode {
 //			+	" vPosition = aPosition;							\n"
 			+	" vec3 nNormal = normalize(aNormal);				\n"
 //			+	" vNormal = nNormal;				\n"
-			+	" vNormal = normalize(vec3(u_ModelMatrix * vec4(nNormal, 1.0)));								\n"
+			+	" vNormal = normalize(vec3(u_NormalMatrix * vec4(nNormal, 1.0)));								\n"
 			+	" vCamera = vec3(100.0, 100.0, 100.0);	   			\n"
 			+	" gl_Position = u_MVPMatrix * vec4(aPosition, 1.0);	\n"
 			+	"}													\n";
