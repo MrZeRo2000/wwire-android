@@ -41,6 +41,10 @@ public class WWireData {
 		return mGaint;
 	}
 	
+	public boolean gaintAvailable() {
+		return mGaint != null;
+	}
+	
 	public int getDP() {
 		return (int) mVar[3];
 	}
