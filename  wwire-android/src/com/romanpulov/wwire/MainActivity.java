@@ -7,7 +7,9 @@ import java.util.Locale;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
 import android.util.Log;
 import android.view.Menu;
@@ -89,7 +91,7 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupViewSelector() {
-		Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
+		final Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
 		ArrayAdapter<String> fileSelectorAdapter = new ArrayAdapter<String>(
 				this, android.R.layout.simple_spinner_item, GLES20DrawerFactory.DrawerListTitle);
 		fileSelectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -100,11 +102,25 @@ public class MainActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				// TODO Auto-generated method stub
-				mModelSurfaceView.getModelRenderer().setModelDrawer(
+				if ((1 == position) && (! WWireData.getInstance().gaintAvailable())) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setTitle(android.R.string.dialog_alert_title);
+					builder.setIcon(android.R.drawable.ic_dialog_alert);
+					builder.setMessage(R.string.warning_calc_results_not_available);
+					builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {						
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							// TODO Auto-generated method stub
+							mViewSelector.setSelection(0);
+						}
+					});
+					builder.create().show();					
+				} else {				
+					mModelSurfaceView.getModelRenderer().setModelDrawer(
 						GLES20DrawerFactory.getInstance().getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
-				);
-				mModelSurfaceView.requestRender();	
-				
+							);
+					mModelSurfaceView.requestRender();
+				}				
 			}
 
 			@Override
@@ -114,7 +130,7 @@ public class MainActivity extends Activity {
 			
 		});
 		
-		mViewSelector.setSelection(1);
+		//mViewSelector.setSelection(1);
 		
 	}
 	
