@@ -23,11 +23,32 @@ public class WWireData {
 		return instance;
 	}
 	
+	//folders
+	private String mPackageFileFolder;
+	private String mDataFileFolder;
+	
+	public String getPackageFileFolder() {
+		return mPackageFileFolder;
+	}
+	
+	public String getDataFileFolder() {
+		return mDataFileFolder;
+	}	
+	
+	//model
 	private float[] mSegments;
 	private float[] mSources;
 	private float[] mGaint;
 	private float[] mVar;
 	
+	private void initFileFolders() {
+		StringBuilder dataFileFolderStringBuilder = new StringBuilder(Environment.getExternalStorageDirectory().toString());
+		dataFileFolderStringBuilder.append("/Android/data/").append(mContext.getPackageName());
+		mPackageFileFolder = dataFileFolderStringBuilder.toString();
+		dataFileFolderStringBuilder.append("/data/");
+		mDataFileFolder = dataFileFolderStringBuilder.toString();
+	}
+		
 	
 	public float[] getSegments() {
 		return mSegments;
@@ -76,6 +97,7 @@ public class WWireData {
 	private WWireData(Context context) {		
 		mContext = context;
 		dataFileList = new ArrayList<String>();		
+		initFileFolders();
 	}
 	
 	private void readSection(String sectionName, ArrayList<String> sectionValues) {
@@ -119,13 +141,7 @@ public class WWireData {
 				inBuf.close();
 			} catch ( IOException ioe ) {}
 		}		
-	}
-	
-	public String getDataFileFolder() {
-		StringBuilder dataFileFolderStringBuilder = new StringBuilder(Environment.getExternalStorageDirectory().toString());		
-		dataFileFolderStringBuilder.append("/Android/data/").append(mContext.getPackageName()).append("/data/");
-		return dataFileFolderStringBuilder.toString();
-	}
+	}	
 	
 	private float[] getSectionArray(String[] sectionNames) {
 		ArrayList<String> stringsSection = new ArrayList<String>();

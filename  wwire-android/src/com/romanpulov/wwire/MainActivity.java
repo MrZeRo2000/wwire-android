@@ -46,6 +46,8 @@ public class MainActivity extends Activity {
 
 		setupFileSelector();
 		setupViewSelector();
+		
+		AssetsHelper.listAssets(this, "pre_inst_models");
 	}
 	
 	private void setupFileSelector() {
@@ -74,10 +76,11 @@ public class MainActivity extends Activity {
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view,
 						int position, long id) {
-					// TODO Auto-generated method stub
+					// load new file
 					WWireData.getInstance().loadFromFile((String)parent.getItemAtPosition(position));
-					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
-					mModelSurfaceView.requestRender();	
+					// reset mode to Model
+					Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
+					mViewSelector.setSelection(0);
 					
 				}
 
@@ -102,6 +105,7 @@ public class MainActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				// TODO Auto-generated method stub
+				
 				if ((1 == position) && (! WWireData.getInstance().gaintAvailable())) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setTitle(android.R.string.dialog_alert_title);
@@ -128,12 +132,10 @@ public class MainActivity extends Activity {
 				// TODO Auto-generated method stub				
 			}
 			
-		});
-		
-		//mViewSelector.setSelection(1);
-		
-	}
-	
+		});		
+		//used for testing
+		//mViewSelector.setSelection(1);		
+	}	
 	
 	TabHost.TabContentFactory TabFactory = new TabHost.TabContentFactory() {	    
 	    @Override
