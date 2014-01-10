@@ -3,7 +3,6 @@ package com.romanpulov.wwire;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Log;
 
 public final class GLES20Primitives {
