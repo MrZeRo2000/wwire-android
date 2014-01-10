@@ -86,7 +86,12 @@ public class MainActivity extends Activity {
 					WWireData.getInstance().loadFromFile((String)parent.getItemAtPosition(position));
 					// reset mode to Model
 					Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
-					mViewSelector.setSelection(0);
+					mViewSelector.setSelection(0);					
+					mModelSurfaceView.getModelRenderer().setModelDrawer(
+							GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class)
+								);
+					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
+					mModelSurfaceView.requestRender();
 					
 				}
 
@@ -129,6 +134,7 @@ public class MainActivity extends Activity {
 					mModelSurfaceView.getModelRenderer().setModelDrawer(
 						GLES20DrawerFactory.getInstance().getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
 							);
+					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
 				}				
 			}
