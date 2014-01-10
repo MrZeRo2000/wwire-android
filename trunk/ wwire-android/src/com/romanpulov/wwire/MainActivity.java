@@ -33,21 +33,27 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		// check opengles support
 		final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 		final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 		Log.d("MainActivity", String.valueOf(supportsEs2));
-		WWireData.createInstance(this);		
-		//WWireData.getInstance().loadFromFile("Frac5.ww1");
 		
+		// create global data instance
+		WWireData.createInstance(this);
+		
+		// set up default drawer
 		ModelLayout modelLayout = (ModelLayout)findViewById(R.id.modellayout);
 		mModelSurfaceView = modelLayout.getModelGLSurfaceView(); 
 		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class));
 
-		setupFileSelector();
-		setupViewSelector();
-		
+		// copy over default models
 		AssetsHelper.listAssets(this, "pre_inst_models");
+		
+		// setup controls
+		setupFileSelector();
+		setupViewSelector();	
+		
 	}
 	
 	private void setupFileSelector() {
