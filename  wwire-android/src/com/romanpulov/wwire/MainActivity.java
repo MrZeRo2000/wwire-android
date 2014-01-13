@@ -23,9 +23,7 @@ import android.widget.TabHost;
 public class MainActivity extends Activity {
 	
 	TabHost mTabHost;
-	ModelGLSurfaceView mModelSurfaceView;
-	float displayMetricsDensity;
-	
+	ModelGLSurfaceView mModelSurfaceView;	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +36,20 @@ public class MainActivity extends Activity {
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 		Log.d("MainActivity", String.valueOf(supportsEs2));
 		
-		// get DisplayMetrics and density
-		final DisplayMetrics displayMetrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		displayMetricsDensity = displayMetrics.density;
-		
 		// create global data instance
 		WWireData.createInstance(this);
+		
+		// get DisplayMetrics and density
+		final DisplayMetrics displayMetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);		
 		
 		// set up default drawer		
 		ModelLayout modelLayout = (ModelLayout)findViewById(R.id.modellayout);
 		mModelSurfaceView = modelLayout.getModelGLSurfaceView(); 
 		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class));
+		
+		// set up density 
+		mModelSurfaceView.setDensity(displayMetrics.density);
 
 		// copy over default models
 		AssetsHelper.listAssets(this, "pre_inst_models");
