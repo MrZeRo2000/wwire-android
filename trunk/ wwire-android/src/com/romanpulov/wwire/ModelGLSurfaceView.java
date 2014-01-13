@@ -17,7 +17,7 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 	}
 	
 	public void setModelRenderer(ModelRenderer modelRenderer) {
-		mModelRenderer = modelRenderer;
+		mModelRenderer = modelRenderer;		
 		setRenderer(mModelRenderer);
 	}
 	

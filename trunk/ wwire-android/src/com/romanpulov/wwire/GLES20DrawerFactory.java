@@ -1,34 +1,35 @@
 package com.romanpulov.wwire;
 
-public class GLES20DrawerFactory {
+public final class GLES20DrawerFactory {
 	
 	public static Class<?>[] DrawerListClass = {ElementsDrawer.class, DiagramDrawer.class};
 	public static String[] DrawerListTitle = {ElementsDrawer.title, DiagramDrawer.title};
 	
 	private static GLES20DrawerFactory mInstance;
+	private float mDensity;
 	private DiagramDrawer mDiagramDrawer;
 	private ElementsDrawer mElementsDrawer;
 	
-	public static GLES20DrawerFactory getInstance() {
+	public static GLES20DrawerFactory getInstance(float density) {
 		if (null == mInstance) {
-			mInstance = new GLES20DrawerFactory();
+			mInstance = new GLES20DrawerFactory(density);
 		}
 		return mInstance;
 	}
 	
-	private GLES20DrawerFactory() {
-		
+	private GLES20DrawerFactory(float density) {
+		mDensity = density;
 	}
 	
 	public GLES20Primitives.ModelDrawer getModelDrawer(Class<?> drawerClass) {
 		if (drawerClass.equals(DiagramDrawer.class)) {
 			if (null == mDiagramDrawer) {
-				mDiagramDrawer = new DiagramDrawer(); 
+				mDiagramDrawer = new DiagramDrawer(mDensity); 
 			}
 			return mDiagramDrawer;
 		} else if (drawerClass.equals(ElementsDrawer.class)) {
 			if (null == mElementsDrawer) {
-				mElementsDrawer = new ElementsDrawer(); 
+				mElementsDrawer = new ElementsDrawer(mDensity); 
 			}
 			return mElementsDrawer;
 		} else
