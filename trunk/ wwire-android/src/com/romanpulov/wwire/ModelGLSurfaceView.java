@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 public class ModelGLSurfaceView extends GLSurfaceView {
 	
 	private ModelRenderer mModelRenderer;
+	private float mDensity;
 	private GestureHandler mGestureHandler;
 	
 	public ModelRenderer getModelRenderer() {
@@ -19,6 +20,10 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 	public void setModelRenderer(ModelRenderer modelRenderer) {
 		mModelRenderer = modelRenderer;		
 		setRenderer(mModelRenderer);
+	}
+	
+	public void setDensity(float density) {
+		mDensity = density;
 	}
 	
 	private class GestureHandler {
