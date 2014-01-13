@@ -6,17 +6,13 @@ import com.romanpulov.wwire.GLES20Primitives.GLES20Matrix;
 
 import android.opengl.GLES20;
 
-public class ElementsDrawer extends BaseDrawer implements GLES20Primitives.ModelDrawer {
+public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
 	
 	public static String title = "Model";
 	
 	GLES20Primitives.Line mSegments;
 	GLES20Primitives.Line mSources;
 	boolean prepared = false;
-	
-	public ElementsDrawer(float density) {
-		super(density);
-	}
 
 	@Override
 	public void drawElements(GL10 gl, GLES20Matrix matrix) {
