@@ -6,7 +6,7 @@ import com.romanpulov.wwire.GLES20Primitives.GLES20Matrix;
 
 import android.opengl.GLES20;
 
-public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
+public class DiagramDrawer extends BaseDrawer implements GLES20Primitives.ModelDrawer{
 	
 	public static String title = "Diagram";
 	
@@ -14,7 +14,11 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
 	
 	private GLES20Primitives.Surface mSurface;
 	private GLES20Primitives.Surface mWFSurface;
-	boolean prepared = false;
+	boolean prepared = false;	
+
+	public DiagramDrawer(float density) {
+		super(density);
+	}
 
 	@Override
 	public void drawElements(GL10 gl, GLES20Matrix matrix) {

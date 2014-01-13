@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -21,11 +22,9 @@ import android.widget.TabHost;
 
 public class MainActivity extends Activity {
 	
-	private static final String TAB_MODEL = "Model";
-	private static final String TAB_DIAGRAM = "Diagram";
-	
 	TabHost mTabHost;
 	ModelGLSurfaceView mModelSurfaceView;
+	float displayMetricsDensity;
 	
 
 	@Override
@@ -39,13 +38,18 @@ public class MainActivity extends Activity {
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 		Log.d("MainActivity", String.valueOf(supportsEs2));
 		
+		// get DisplayMetrics and density
+		final DisplayMetrics displayMetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		displayMetricsDensity = displayMetrics.density;
+		
 		// create global data instance
 		WWireData.createInstance(this);
 		
-		// set up default drawer
+		// set up default drawer		
 		ModelLayout modelLayout = (ModelLayout)findViewById(R.id.modellayout);
 		mModelSurfaceView = modelLayout.getModelGLSurfaceView(); 
-		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class));
+		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance(displayMetricsDensity).getModelDrawer(ElementsDrawer.class));
 
 		// copy over default models
 		AssetsHelper.listAssets(this, "pre_inst_models");
@@ -88,7 +92,7 @@ public class MainActivity extends Activity {
 					Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
 					mViewSelector.setSelection(0);					
 					mModelSurfaceView.getModelRenderer().setModelDrawer(
-							GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class)
+							GLES20DrawerFactory.getInstance(displayMetricsDensity).getModelDrawer(ElementsDrawer.class)
 								);
 					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
@@ -132,7 +136,7 @@ public class MainActivity extends Activity {
 					builder.create().show();					
 				} else {				
 					mModelSurfaceView.getModelRenderer().setModelDrawer(
-						GLES20DrawerFactory.getInstance().getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
+						GLES20DrawerFactory.getInstance(displayMetricsDensity).getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
 							);
 					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
@@ -147,30 +151,7 @@ public class MainActivity extends Activity {
 		});		
 		//used for testing
 		//mViewSelector.setSelection(1);		
-	}	
-	
-	TabHost.TabContentFactory TabFactory = new TabHost.TabContentFactory() {	    
-	    @Override
-	    public View createTabContent(String tag) {	    		
-	    	if (TAB_MODEL == tag) {
-	    		ModelLayout modelLayout = new ModelLayout(mTabHost.getContext());	    		
-	    		modelLayout.getModelGLSurfaceView().getModelRenderer().setModelDrawer(new ElementsDrawer());	    		
-	    		Log.d("MainActivity", "returning ElementsDrawer");
-	    		return modelLayout;
-	    	} else if (TAB_DIAGRAM == tag) {
-	    		ModelLayout modelLayout = new ModelLayout(mTabHost.getContext());
-	    		//modelLayout.getModelGLSurfaceView().getModelRenderer().setModelDrawer(new DiagramDrawer());
-	    		mModelSurfaceView.getModelRenderer().setModelDrawer(new DiagramDrawer());
-	    		Log.d("MainActivity", "returning DiagramDrawer");
-	    		return modelLayout;
-	    		//return (new android.widget.AnalogClock(mTabHost.getContext())); //
-	    	} else {
-	    		Log.d("MainActivity", "returning null");
-	    		return null;
-	    	}	
-	    }
-	};
-	
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
