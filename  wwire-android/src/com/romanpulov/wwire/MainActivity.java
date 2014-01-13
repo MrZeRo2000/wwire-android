@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 		// set up default drawer		
 		ModelLayout modelLayout = (ModelLayout)findViewById(R.id.modellayout);
 		mModelSurfaceView = modelLayout.getModelGLSurfaceView(); 
-		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance(displayMetricsDensity).getModelDrawer(ElementsDrawer.class));
+		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class));
 
 		// copy over default models
 		AssetsHelper.listAssets(this, "pre_inst_models");
@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
 					Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
 					mViewSelector.setSelection(0);					
 					mModelSurfaceView.getModelRenderer().setModelDrawer(
-							GLES20DrawerFactory.getInstance(displayMetricsDensity).getModelDrawer(ElementsDrawer.class)
+							GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class)
 								);
 					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
@@ -136,7 +136,7 @@ public class MainActivity extends Activity {
 					builder.create().show();					
 				} else {				
 					mModelSurfaceView.getModelRenderer().setModelDrawer(
-						GLES20DrawerFactory.getInstance(displayMetricsDensity).getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
+						GLES20DrawerFactory.getInstance().getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
 							);
 					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
