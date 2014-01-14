@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 public class ModelGLSurfaceView extends GLSurfaceView {
 	
 	private ModelRenderer mModelRenderer;
-	private float mDensity;
 	private GestureHandler mGestureHandler;
 	
 	public ModelRenderer getModelRenderer() {
@@ -19,11 +18,11 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 	
 	public void setModelRenderer(ModelRenderer modelRenderer) {
 		mModelRenderer = modelRenderer;		
-		setRenderer(mModelRenderer);
+		setRenderer(mModelRenderer);		
 	}
 	
 	public void setDensity(float density) {
-		mDensity = density;
+		mModelRenderer.setDensity(density);		
 	}
 	
 	private class GestureHandler {
@@ -55,13 +54,13 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		
 		private boolean handleDragGesture(MotionEvent event) 
 		{
-			if (mGesture == DRAG) {
-				mLastTouchPoint.x = mCurrentTouchPoint.x;
-				mLastTouchPoint.y = mCurrentTouchPoint.y;
-				
+			if (mGesture == DRAG) {				
 				getPointFromEvent(mCurrentTouchPoint, event);	
 				
-				mModelRenderer.performTouch(mLastTouchPoint, mCurrentTouchPoint);				
+				mModelRenderer.performTouch(mLastTouchPoint, mCurrentTouchPoint);
+				
+				mLastTouchPoint.x = mCurrentTouchPoint.x;
+				mLastTouchPoint.y = mCurrentTouchPoint.y;
 				
 				return true;
 			} else
@@ -82,7 +81,7 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		setEGLContextClientVersion(2);
 		//setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 		setModelRenderer(new ModelRenderer());
-		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);		
 	}	
 	
 	@Override
