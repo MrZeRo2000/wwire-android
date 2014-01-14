@@ -3,6 +3,7 @@ package com.romanpulov.wwire;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Log;
 
 public final class GLES20Primitives {
@@ -14,12 +15,50 @@ public final class GLES20Primitives {
 	}
 	
 	public class GLES20Matrix {
+		// model and normal
 		public float[] model = new float[16];
 		public float[] normal = new float[16];
+		// rotation support
+		public float[] currentRotation = new float[16];
+		public float[] accumulatedRotation = new float[16];
+		// auxiliary matrix
+		public float[] temp = new float[16];
+		// view
 		public float[] view = new float[16];
 		public int[] viewport = new int[4];
+		// projection
 		public float[] projection = new float[16];
+		//modelview 
+		public float[] modelViewMatrix = new float[16];
+		// resulting
 		public float[] mvp = new float[16];
+		
+		public void initModel() {
+			Matrix.setIdentityM(model, 0);
+			Matrix.setIdentityM(normal, 0);
+		}
+		
+		public void init() {
+			initModel();
+			Matrix.setIdentityM(accumulatedRotation, 0);
+		}
+		
+	}
+	
+	public class GLES20Transform {
+		// pan
+		public float offsetX;
+		public float offsetY;
+		public float offsetZ;
+		// scale
+		public float scale;
+		// rotate
+		public float rotateX;
+		public float rotateY;
+		
+		public void init() {
+			offsetX = offsetY = offsetZ = scale = rotateX = rotateY = 0f;
+		}
 	}
 	
 	public class Line extends GLES20Shader {

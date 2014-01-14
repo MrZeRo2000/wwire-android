@@ -19,9 +19,11 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	
 	TouchHandlerFactory mTouchHandlerFactory;
 	TouchHandler mTouchHandler;
-	int mHandlerMode;	
+	int mHandlerMode;
+	float mDensity;
 	
 	GLES20Primitives.GLES20Matrix mMatrix;
+	GLES20Primitives.GLES20Transform mTransform;
 	/*
 	private float[] mModelMatrix = new float[16];
 	private float[] mViewMatrix = new float[16];
@@ -39,6 +41,10 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	
 	public void setHandlerMode(int handlerMode) {
 		mHandlerMode = handlerMode;
+	}
+	
+	public void setDensity(float density) {
+		mDensity = density;
 	}
 	
 	private abstract class TouchHandler {
@@ -76,14 +82,50 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		}
 		
 		public abstract void perform();		
+		
+		public final void applyTransform() {
+			// init matrix
+			mMatrix.initModel();
+			// calc modelview
+			Matrix.multiplyMM(mMatrix.modelViewMatrix, 0, mMatrix.view, 0, mMatrix.model, 0);
+			// apply scale		
+			float rate = 1.0f - mTransform.scale / mMatrix.viewport[3];
+			float[] coords = new float[4];
+			GLU.gluUnProject((float)mMatrix.viewport[2]/2.0f, (float)mMatrix.viewport[3]/2.0f, 0.0f, 
+					mMatrix.modelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, coords, 0);				
+			Matrix.translateM(mMatrix.model, 0, coords[0], coords[1], coords[2]);
+			Matrix.scaleM(mMatrix.model, 0, rate, rate, rate);
+			Matrix.translateM(mMatrix.model, 0, -coords[0], -coords[1], -coords[2]);
+			// apply rotate
+			// rotate current rotation				
+			Matrix.setIdentityM(mMatrix.currentRotation, 0);
+			Matrix.rotateM(mMatrix.currentRotation, 0, mTransform.rotateX, 0.0f, 0.0f, 1.0f);
+			Matrix.rotateM(mMatrix.currentRotation, 0, mTransform.rotateY, 1.0f, -1.0f, 0.0f);
+			// multiply the current rotation by the accumulated rotation, and then set the accumulated
+			// rotation to the result.
+			Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.currentRotation, 0, mMatrix.accumulatedRotation, 0);
+			System.arraycopy(mMatrix.temp, 0, mMatrix.accumulatedRotation, 0, 16);
+			// rotate the model taking the overall rotation into account.				
+			Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.model, 0, mMatrix.accumulatedRotation, 0);
+			System.arraycopy(mMatrix.temp, 0, mMatrix.model, 0, 16);
+			// rotate the normal taking the overall rotation into account.
+			Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.normal, 0, mMatrix.accumulatedRotation, 0);
+			System.arraycopy(mMatrix.temp, 0, mMatrix.normal, 0, 16);
+			//reset rotate
+			mTransform.rotateX = mTransform.rotateY = 0f;
+			// apply translate
+			Matrix.translateM(mMatrix.model, 0, mTransform.offsetX, mTransform.offsetY, mTransform.offsetZ);				
+		}
 	}
 	
 	private class RevertHandler extends TouchHandler {
 		@Override
 		public void perform() {
 			if (mActive) {
-				Matrix.setIdentityM(mMatrix.model, 0);
-				Matrix.setIdentityM(mMatrix.normal, 0);
+				mMatrix.init();
+				mTransform.init();
+				//Matrix.setIdentityM(mMatrix.model, 0);
+				//Matrix.setIdentityM(mMatrix.normal, 0);
 			}
 		}
 	}
@@ -95,10 +137,17 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 			if (mActive) {
 				float[] oldCoords = new float[4];
 				float[] newCoords = new float[4];			
-				
+				// calc coords				
 				GLU.gluUnProject(mOldPos.x, -mOldPos.y, 0.0f, mModelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, oldCoords, 0);
 				GLU.gluUnProject(mNewPos.x, -mNewPos.y, 0.0f,  mModelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, newCoords, 0);
-				Matrix.translateM(mMatrix.model, 0, newCoords[0]-oldCoords[0], newCoords[1]-oldCoords[1], newCoords[2]-oldCoords[2]);				
+				//
+				mTransform.offsetX += newCoords[0] - oldCoords[0];
+				mTransform.offsetY += newCoords[1] - oldCoords[1];
+				mTransform.offsetZ += newCoords[2] - oldCoords[2];
+				// action to pan
+				/*
+				Matrix.translateM(mMatrix.model, 0, newCoords[0]-oldCoords[0], newCoords[1]-oldCoords[1], newCoords[2]-oldCoords[2]);
+				*/				
 			}
 		}		
 	}
@@ -107,11 +156,41 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		
 		@Override
 		public void perform() {			
-			if (mActive) {				
-				Matrix.rotateM(mMatrix.model, 0, mNewPos.x - mOldPos.x, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(mMatrix.model, 0, - (mNewPos.y - mOldPos.y), 1.0f, -1.0f, 0.0f);				
-				Matrix.rotateM(mMatrix.normal, 0, mNewPos.x - mOldPos.x, 0.0f, 0.0f, 1.0f);
-				Matrix.rotateM(mMatrix.normal, 0, - (mNewPos.y - mOldPos.y), 1.0f, -1.0f, 0.0f);
+			if (mActive) {
+				// calc rotation offset
+				mTransform.rotateX = (mNewPos.x - mOldPos.x) / mDensity / 2f;;
+				mTransform.rotateY = - (mNewPos.y - mOldPos.y) / mDensity / 2f;
+				
+				// action to rotate
+				/*
+				Matrix.setIdentityM(mMatrix.model, 0);
+				Matrix.setIdentityM(mMatrix.normal, 0);
+				
+				Log.d("RotateHandler", "dx/dy : " + String.valueOf(dx) + "/" + String.valueOf(dy) + " density=" + String.valueOf(mDensity));			
+				// rotate current rotation				
+				Matrix.setIdentityM(mMatrix.currentRotation, 0);
+				Matrix.rotateM(mMatrix.currentRotation, 0, dx, 0.0f, 0.0f, 1.0f);
+				Matrix.rotateM(mMatrix.currentRotation, 0, dy, 1.0f, -1.0f, 0.0f);
+				// multiply the current rotation by the accumulated rotation, and then set the accumulated
+				// rotation to the result.
+				Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.currentRotation, 0, mMatrix.accumulatedRotation, 0);
+				System.arraycopy(mMatrix.temp, 0, mMatrix.accumulatedRotation, 0, 16);
+				// rotate the model taking the overall rotation into account.				
+				Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.model, 0, mMatrix.accumulatedRotation, 0);
+				System.arraycopy(mMatrix.temp, 0, mMatrix.model, 0, 16);
+
+				// rotate the normal taking the overall rotation into account.
+				Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.normal, 0, mMatrix.accumulatedRotation, 0);
+				System.arraycopy(mMatrix.temp, 0, mMatrix.normal, 0, 16);
+				*/
+				
+				// old rotate procedure
+				/*
+				Matrix.rotateM(mMatrix.model, 0, dx, 0.0f, 0.0f, 1.0f);
+				Matrix.rotateM(mMatrix.model, 0, dy, 1.0f, -1.0f, 0.0f);				
+				Matrix.rotateM(mMatrix.normal, 0, dx, 0.0f, 0.0f, 1.0f);
+				Matrix.rotateM(mMatrix.normal, 0, dy, 1.0f, -1.0f, 0.0f);
+				*/
 			}
 		}		
 	}
@@ -121,14 +200,18 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		@Override
 		public void perform() {			
 			if (mActive) {
+				
+				mTransform.scale += (mNewPos.y - mOldPos.y);				
+				// action to scale
+				/*
 				float rate = 1.0f - (mNewPos.y - mOldPos.y)/mMatrix.viewport[3];
 				float[] coords = new float[4];
 				GLU.gluUnProject((float)mMatrix.viewport[2]/2.0f, (float)mMatrix.viewport[3]/2.0f, 0.0f, 
-						mModelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, coords, 0);
-				
+						mModelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, coords, 0);				
 				Matrix.translateM(mMatrix.model, 0, coords[0], coords[1], coords[2]);
 				Matrix.scaleM(mMatrix.model, 0, rate, rate, rate);
 				Matrix.translateM(mMatrix.model, 0, -coords[0], -coords[1], -coords[2]);
+				*/
 			}
 		}		
 	}
@@ -171,7 +254,8 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	public ModelRenderer() {
 		mGLES20Primitives = new GLES20Primitives();
 		mTouchHandlerFactory = new TouchHandlerFactory();
-		mMatrix = mGLES20Primitives.new GLES20Matrix(); 
+		mMatrix = mGLES20Primitives.new GLES20Matrix();
+		mTransform = mGLES20Primitives.new GLES20Transform();
 	}
 	
 	private void clear(GL10 gl) {
@@ -184,9 +268,10 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		
 		Matrix.setLookAtM(mMatrix.view, 0, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		//Matrix.setIdentityM(mViewMatrix, 0);
-		Matrix.setIdentityM(mMatrix.model, 0);		
-		Matrix.setIdentityM(mMatrix.normal, 0);
+		
+		mMatrix.init();
+		//Matrix.setIdentityM(mMatrix.model, 0);		
+		//Matrix.setIdentityM(mMatrix.normal, 0);
 	}
 	
 	@Override
@@ -229,13 +314,14 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	}
 	
 	public final void performTouch(PointF oldPos, PointF newPos) {
-		Log.i("Coords", String.valueOf(oldPos.x) + "/" + String.valueOf(oldPos.y) + "/" + String.valueOf(newPos.x) + "/" + String.valueOf(newPos.x));
+		Log.i("Coords", String.valueOf(oldPos.x) + "/" + String.valueOf(oldPos.y) + "/" + String.valueOf(newPos.x) + "/" + String.valueOf(newPos.y));
 		
 		mTouchHandler = mTouchHandlerFactory.getHandler(mHandlerMode);
 		if (null != mTouchHandler) {
 			if (!mTouchHandler.getActive())
 				mTouchHandler.activate();
-			mTouchHandler.updatePos(oldPos, newPos);			
+			mTouchHandler.updatePos(oldPos, newPos);
+			mTouchHandler.applyTransform();
 		}
 	}
 	
@@ -243,6 +329,5 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		if (null != mTouchHandler)
 			mTouchHandler.deactivate();
 	}
-	
 	
 }
