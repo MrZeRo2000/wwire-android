@@ -43,22 +43,10 @@ public final class GLES20Primitives {
 			Matrix.setIdentityM(accumulatedRotation, 0);
 		}
 		
-	}
-	
-	public class GLES20Transform {
-		// pan
-		public float offsetX;
-		public float offsetY;
-		public float offsetZ;
-		// scale
-		public float scale;
-		// rotate
-		public float rotateX;
-		public float rotateY;
-		
-		public void init() {
-			offsetX = offsetY = offsetZ = scale = rotateX = rotateY = 0f;
+		public void calcModelViewMatrix() {
+			Matrix.multiplyMM(modelViewMatrix, 0, view, 0, model, 0);
 		}
+		
 	}
 	
 	public class Line extends GLES20Shader {
