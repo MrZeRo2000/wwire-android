@@ -18,11 +18,6 @@ public final class GLES20Primitives {
 		// model and normal
 		public float[] model = new float[16];
 		public float[] normal = new float[16];
-		// rotation support
-		public float[] currentRotation = new float[16];
-		public float[] accumulatedRotation = new float[16];
-		// auxiliary matrix
-		public float[] temp = new float[16];
 		// view
 		public float[] view = new float[16];
 		public int[] viewport = new int[4];
@@ -36,11 +31,6 @@ public final class GLES20Primitives {
 		public void initModel() {
 			Matrix.setIdentityM(model, 0);
 			Matrix.setIdentityM(normal, 0);
-		}
-		
-		public void init() {
-			initModel();
-			Matrix.setIdentityM(accumulatedRotation, 0);
 		}
 		
 		public void calcModelViewMatrix() {

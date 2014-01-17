@@ -77,6 +77,7 @@ public class MainActivity extends Activity {
 		Log.d(MainActivity.TAG, "onSaveInstanceState");
 		outState.putInt("FileSelector", mFileSelector.getSelectedItemPosition());
 		outState.putInt("ViewSelector", mViewSelector.getSelectedItemPosition());
+		mModelSurfaceView.getModelRenderer().saveHandlerState(outState);
 	}
 	
 	@Override
@@ -87,6 +88,10 @@ public class MainActivity extends Activity {
 		mFileSelector.setSelection(savedInstanceState.getInt("FileSelector"));
 		mViewSelector.setSelection(savedInstanceState.getInt("ViewSelector"));
 		Log.d(MainActivity.TAG, "onRestoreInstanceState setSelection");
+		mModelSurfaceView.getModelRenderer().loadHandlerState(savedInstanceState);
+		//mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
+		//mModelSurfaceView.requestRender();		
+		//mModelSurfaceView.getModelRenderer().
 	}
 	
 	private Spinner setupFileSelector() {

@@ -12,22 +12,22 @@ import android.graphics.PointF;
 import android.opengl.GLU;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Bundle;
 import android.util.Log;
 
 public class ModelRenderer implements GLSurfaceView.Renderer {
 	// primitive objects
-	GLES20Primitives mGLES20Primitives;
-	GLES20Primitives.Axes mAxes;
-	OGLPrimitives.Cube mCube;
+	private GLES20Primitives mGLES20Primitives;
+	private GLES20Primitives.Axes mAxes;
 	//drawer
-	GLES20Primitives.ModelDrawer mModelDrawer;
+	private GLES20Primitives.ModelDrawer mModelDrawer;
 	
-	TouchHandlerFactory mTouchHandlerFactory;
+	private TouchHandlerFactory mTouchHandlerFactory;
 	
-	int mHandlerMode;
-	float mDensity;
+	private int mHandlerMode;
+	private float mDensity;
 	
-	GLES20Primitives.GLES20Matrix mMatrix;
+	private GLES20Primitives.GLES20Matrix mMatrix;
 	
 	public void setModelDrawer(GLES20Primitives.ModelDrawer modelDrawer) {
 		mModelDrawer = modelDrawer;		
@@ -37,6 +37,10 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		return mModelDrawer;
 	}
 	
+	public TouchHandlerFactory getTouchHandlerFactory() {
+		return mTouchHandlerFactory;
+	}
+	
 	public void setHandlerMode(int handlerMode) {
 		mHandlerMode = handlerMode;
 	}
@@ -44,6 +48,14 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	public void setDensity(float density) {
 		mDensity = density;
 	}
+	
+	public void saveHandlerState(Bundle state) {
+		mTouchHandlerFactory.saveState(state);
+	}
+	
+	public void loadHandlerState(Bundle state) {
+		mTouchHandlerFactory.loadState(state);
+	}	
 	
 	private abstract class TouchHandler {
 		
@@ -76,33 +88,37 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 			Log.d("TouchHandler", "UpdatePos");
 			mOldPos = oldPos;
 			mNewPos = newPos;			
-		}
-		
-		public abstract void perform();
+		}		
 		
 		public void init() {
 			mIsDirty = false;
 		}
 		
+		public abstract void perform();
+		
 		public abstract void apply();
+		
+		// state routines
+		public abstract void saveState(Bundle state);
+		public abstract void loadState(Bundle state);
 		
 	}
 	
 	private class PanHandler extends TouchHandler {		
 
-		private float offsetX;
-		private float offsetY;
+		private float mOffsetX;
+		private float mOffsetY;
 		
 		@Override
 		public void init() {
 			super.init();
-			offsetX = offsetY = 0.0f;
+			mOffsetX = mOffsetY = 0.0f;
 		}
 		
 		@Override
 		public void perform() {			
-			offsetX += getNewPos().x - getOldPos().x;
-			offsetY += - (getNewPos().y - getOldPos().y);			
+			mOffsetX += getNewPos().x - getOldPos().x;
+			mOffsetY += - (getNewPos().y - getOldPos().y);			
 		}
 		
 		@Override
@@ -114,24 +130,46 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 			float[] oldCoords = new float[4];
 			float[] newCoords = new float[4];
 			GLU.gluUnProject(0.0f, 0.0f, 0.0f, mMatrix.modelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, oldCoords, 0);
-			GLU.gluUnProject(offsetX, offsetY, 0.0f, mMatrix.modelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, newCoords, 0);
+			GLU.gluUnProject(mOffsetX, mOffsetY, 0.0f, mMatrix.modelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, newCoords, 0);
 			
 			// translate
 			Matrix.translateM(mMatrix.model, 0, newCoords[0] - oldCoords[0], newCoords[1] - oldCoords[1], newCoords[2] - oldCoords[2]);		
-
+			Log.d(getClass().toString(), "apply, offsetX = " + String.valueOf(mOffsetX) + ", offsetY = " + String.valueOf(mOffsetY));
+		}
+		
+		// state routines
+		@Override
+		public void saveState(Bundle state) {
+			state.putFloat(this.getClass().toString() + "_offsetX", mOffsetX);
+			state.putFloat(this.getClass().toString() + "_offsetY", mOffsetY);
+		}
+		
+		@Override
+		public void loadState(Bundle state) {
+			mOffsetX = state.getFloat(this.getClass().toString() + "_offsetX", 0.0f);
+			mOffsetY = state.getFloat(this.getClass().toString() + "_offsetY", 0.0f);
 		}
 		
 	}
 	
-	private class RotateHandler extends TouchHandler {
+	private class RotateHandler extends TouchHandler {		
+		// rotation support
+		private float[] accumulatedRotation = new float[16];
 		
 		private float mRotateX;
 		private float mRotateY;
 		
+		public RotateHandler() {
+			super();
+			accumulatedRotation = new float[16];			
+		}
+		
 		@Override
 		public void init() {
+			Log.d(getClass().toString(), "init accumulated rotation");
 			super.init();
 			mRotateX = mRotateY = 0.0f;
+			Matrix.setIdentityM(accumulatedRotation, 0);
 		}
 		
 		@Override
@@ -143,26 +181,44 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		
 		@Override
 		public void apply() {
-			// rotate current rotation				
-			Matrix.setIdentityM(mMatrix.currentRotation, 0);
-			Matrix.rotateM(mMatrix.currentRotation, 0, mRotateX, 0.0f, 0.0f, 1.0f);
-			Matrix.rotateM(mMatrix.currentRotation, 0, mRotateY, 1.0f, -1.0f, 0.0f);
+			Log.d(getClass().toString(), "apply rotation");
+			// rotate current rotation
+			final float[] currentRotation = new float[16];
+			Matrix.setIdentityM(currentRotation, 0);
+			Matrix.rotateM(currentRotation, 0, mRotateX, 0.0f, 0.0f, 1.0f);
+			Matrix.rotateM(currentRotation, 0, mRotateY, 1.0f, -1.0f, 0.0f);
 			
+			final float[] temp = new float[16];
 			// multiply the current rotation by the accumulated rotation, and then set the accumulated
 			// rotation to the result.
-			Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.currentRotation, 0, mMatrix.accumulatedRotation, 0);
-			System.arraycopy(mMatrix.temp, 0, mMatrix.accumulatedRotation, 0, 16);
+			Matrix.multiplyMM(temp, 0, currentRotation, 0, accumulatedRotation, 0);
+			System.arraycopy(temp, 0, accumulatedRotation, 0, 16);
 			
 			// rotate the model taking the overall rotation into account.				
-			Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.model, 0, mMatrix.accumulatedRotation, 0);
-			System.arraycopy(mMatrix.temp, 0, mMatrix.model, 0, 16);
+			Matrix.multiplyMM(temp, 0, mMatrix.model, 0, accumulatedRotation, 0);
+			System.arraycopy(temp, 0, mMatrix.model, 0, 16);
 			
 			// rotate the normal taking the overall rotation into account.
-			Matrix.multiplyMM(mMatrix.temp, 0, mMatrix.normal, 0, mMatrix.accumulatedRotation, 0);
-			System.arraycopy(mMatrix.temp, 0, mMatrix.normal, 0, 16);
+			Matrix.multiplyMM(temp, 0, mMatrix.normal, 0, accumulatedRotation, 0);
+			System.arraycopy(temp, 0, mMatrix.normal, 0, 16);
 			
 			//reset rotate
 			mRotateX = mRotateY = 0.0f;
+		}
+		
+		// state routines
+		@Override
+		public void saveState(Bundle state) {
+			state.putFloatArray(this.getClass().toString() + "_accumulatedRotation", accumulatedRotation);
+		}
+		
+		@Override
+		public void loadState(Bundle state) {			
+			float[] tempAccumulatedRotation = state.getFloatArray(this.getClass().toString() + "_accumulatedRotation");
+			if (null != tempAccumulatedRotation) {
+				Log.d(getClass().toString(), "load accumulated rotation");
+				System.arraycopy(tempAccumulatedRotation, 0, accumulatedRotation, 0, 16);
+			}			
 		}
 	}
 	
@@ -192,6 +248,18 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 			Matrix.scaleM(mMatrix.model, 0, rate, rate, rate);
 			Matrix.translateM(mMatrix.model, 0, -coords[0], -coords[1], -coords[2]);
 		}
+		
+		// state routines
+		@Override
+		public void saveState(Bundle state) {
+			state.putFloat(this.getClass().toString() + "_scaleFactor", mScaleFactor);
+		}
+		
+		@Override
+		public void loadState(Bundle state) {
+			mScaleFactor = state.getFloat(this.getClass().toString() + "_scaleFactor", 0.0f);
+		}
+		
 	}
 	
 	private class TouchHandlerFactory {
@@ -199,35 +267,47 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		public static final int MODE_PAN = 2;
 		public static final int MODE_ROTATE = 3;
 		public static final int MODE_SCALE = 4;
+		private static final int MAX_MODE = 4;
 		
 		@SuppressLint("UseSparseArrays")
 		private Map<Integer, TouchHandler> mHandlers = new HashMap<Integer, TouchHandler>();
 		
-		public TouchHandler getHandler(int handlerMode) {
+		public TouchHandler getHandler(int handlerMode, boolean createIfNotExists) {
 			final String tag = "getHandler"; 
+			final TouchHandler newHandler;
 			
 			if (mHandlers.containsKey(handlerMode)) {
 				Log.d(tag, "handler exists");
 				return mHandlers.get(handlerMode);
 			} else {
-				Log.d(tag, "new handler");
-				switch (handlerMode) {
-				case MODE_PAN:
-					mHandlers.put(handlerMode, new PanHandler());
-					return mHandlers.get(handlerMode);
-				case MODE_ROTATE:					
-					mHandlers.put(handlerMode, new RotateHandler());
-					return mHandlers.get(handlerMode);
-				case MODE_SCALE:
-					mHandlers.put(handlerMode, new ScaleHandler());
-					return mHandlers.get(handlerMode);
-				default:
-					return null;					
-				}
+				if (createIfNotExists) {
+					Log.d(tag, "new handler");
+					switch (handlerMode) {
+					case MODE_PAN:
+						newHandler = new PanHandler();
+						break;
+					case MODE_ROTATE:
+						newHandler = new RotateHandler();
+						break;
+					case MODE_SCALE:
+						newHandler = new ScaleHandler();
+						break;
+					default:
+						return null;					
+					}
+					if (null != newHandler) {						
+						mHandlers.put(handlerMode, newHandler);
+						newHandler.init();
+					}
+					return newHandler;
+					
+				} else
+					return null;
 			}
 		}
 		
 		public void applyTransform() {
+			Log.d(getClass().toString(), "applyTransform");
 			// init matrix
 			mMatrix.initModel();
 			
@@ -239,19 +319,42 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 				if (entry.getValue().getDirty())
 					entry.getValue().apply();
 			}
+			
 		}
 		
 		public void initHandlers() {
 			for (Map.Entry<Integer, TouchHandler> entry : mHandlers.entrySet()) {
 				entry.getValue().init();
 			}
-		}		
+		}
+		
+		// state routines
+		public void saveState(Bundle state) {
+			for (int i = 1; i <= MAX_MODE; i ++) {
+				TouchHandler touchHandler = getHandler(i, false);
+				if ((null != touchHandler) && (touchHandler.getDirty())) {					
+					state.putBoolean(this.getClass().toString() + String.valueOf(i), true);
+					touchHandler.saveState(state);
+				}
+			}
+		}
+		
+		public void loadState(Bundle state) {
+			for (int i = 1; i <= MAX_MODE; i ++) {
+				final boolean handlerExists = state.getBoolean(this.getClass().toString() + String.valueOf(i), false);
+				if (handlerExists) {
+					TouchHandler touchHandler = getHandler(i, true);
+					touchHandler.loadState(state);
+					touchHandler.setDirty();
+				}
+			}			
+		}
 	}
 	
 	public ModelRenderer() {
 		mGLES20Primitives = new GLES20Primitives();
 		mTouchHandlerFactory = new TouchHandlerFactory();
-		mMatrix = mGLES20Primitives.new GLES20Matrix();
+		mMatrix = mGLES20Primitives.new GLES20Matrix();		
 	}
 	
 	private void clear(GL10 gl) {
@@ -260,16 +363,18 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 	
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		Log.d(getClass().toString(), "OnSurfaceCreated");
 		// clear color
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		// set lookat
 		Matrix.setLookAtM(mMatrix.view, 0, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 		// init matrix
-		mMatrix.init();
+		mMatrix.initModel();
 	}
 	
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
+		Log.d(getClass().toString(), "OnSurfaceChanged");
 		// get viewport parameters
 		GLES20.glViewport(0, 0, width, height);
 		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mMatrix.viewport, 0);
@@ -283,12 +388,17 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		if (null != mModelDrawer)
 			mModelDrawer.initElements(mMatrix);		
 		
-		// set up projection depending on orientatino
+		// set up projection depending on orientation
 		if (height > width)
 			Matrix.orthoM(mMatrix.projection, 0, -1.0f, 1.0f, (float) -height / width, (float) height / width, -1.0f, 50.0f);
 		else
-			Matrix.orthoM(mMatrix.projection, 0, (float) -width / height, (float) width / height, -1.0f, 1.0f, -1.0f, 50.0f);
+			Matrix.orthoM(mMatrix.projection, 0, (float) -width / height, (float) width / height, -1.0f, 1.0f, -1.0f, 50.0f);		
 		
+		// init matrix
+		mMatrix.initModel();
+		mTouchHandlerFactory.applyTransform();
+		//Log.d("OnSurfaceChanged", "ApplyTransform");
+
 		// another option
 		//Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 1.0f, 50.0f);
 	}
@@ -318,10 +428,12 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 		Log.i("Coords", String.valueOf(oldPos.x) + "/" + String.valueOf(oldPos.y) + "/" + String.valueOf(newPos.x) + "/" + String.valueOf(newPos.y));
 		
 		if (TouchHandlerFactory.MODE_REVERT == mHandlerMode) {
-			mMatrix.init();
+			// init matrix
+			mMatrix.initModel();
+			// reset handlers
 			mTouchHandlerFactory.initHandlers();
 		} else {		
-			TouchHandler mTouchHandler = mTouchHandlerFactory.getHandler(mHandlerMode);
+			final TouchHandler mTouchHandler = mTouchHandlerFactory.getHandler(mHandlerMode, true);
 			if (null != mTouchHandler) {
 				// save position in handler
 				mTouchHandler.updatePos(oldPos, newPos);
