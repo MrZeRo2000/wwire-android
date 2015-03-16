@@ -1,2 +1,0 @@
-cls
-cscript fw.vbs
