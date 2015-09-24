@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 public class WWireData {
 	
@@ -43,13 +42,12 @@ public class WWireData {
 	
 	private void initFileFolders() {
 		StringBuilder dataFileFolderStringBuilder = new StringBuilder(Environment.getExternalStorageDirectory().toString());
-		dataFileFolderStringBuilder.append("/Android/data/").append(mContext.getPackageName());
+		dataFileFolderStringBuilder.append("/").append(mContext.getPackageName());
 		mPackageFileFolder = dataFileFolderStringBuilder.toString();
 		dataFileFolderStringBuilder.append("/data/");
 		mDataFileFolder = dataFileFolderStringBuilder.toString();
 	}
-		
-	
+
 	public float[] getSegments() {
 		return mSegments;
 	}
@@ -89,14 +87,13 @@ public class WWireData {
 	static String SECTION_NAME_SOURCEV_LAYOUT = "sourcev.layout";
 	static String SECTION_NAME_GAINT = "gain.t";	
 	static String SECTION_NAME_VAR = "var";
-	
-	
+
 	Context mContext;
 	ArrayList<String> dataFileList;
 	
 	private WWireData(Context context) {		
 		mContext = context;
-		dataFileList = new ArrayList<String>();		
+		dataFileList = new ArrayList<>();
 		initFileFolders();
 	}
 	
@@ -117,13 +114,12 @@ public class WWireData {
 	}
 	
 	private float[] copyFromArrayList(ArrayList<String> str) {
-		float[] retval = new float[str.size()];
+		float[] res = new float[str.size()];
 		int i = 0;
 		for (String s : str) {
-			retval[i] = Float.valueOf(s);
-			i++;
-		}		
-		return retval;		
+			res[i++] = Float.valueOf(s);
+		}
+		return res;
 	}
 	
 	private void loadFileList(String dataFileString) {
@@ -139,41 +135,35 @@ public class WWireData {
 		        	dataFileList.add(s);
 				}
 				inBuf.close();
-			} catch ( IOException ioe ) {}
+			} catch ( IOException ioe ) {
+                ioe.printStackTrace();
+            }
 		}		
 	}	
 	
 	private float[] getSectionArray(String[] sectionNames) {
-		ArrayList<String> stringsSection = new ArrayList<String>();
+		ArrayList<String> stringsSection = new ArrayList<>();
 		for (String s : sectionNames) {
 			readSection(s, stringsSection);
 		}		
-		float[] retval = copyFromArrayList(stringsSection);
-		return retval;
+		return copyFromArrayList(stringsSection);
 	}
 	
 	public void loadFromFile(String fileName) {
 		String dataFileString = getDataFileFolder() + fileName;
-		
-		loadFileList(dataFileString);			
+		loadFileList(dataFileString);
 		
 		mSegments = getSectionArray(new String[] {SECTION_NAME_SEGMENT_LAYOUT});
-		Log.d("LoadFromFile", "Segments: " + String.valueOf(mSegments.length/6));
-		
+		//Log.d("LoadFromFile", "Segments: " + String.valueOf(mSegments.length/6));
 		mSources = getSectionArray(new String[] {SECTION_NAME_SOURCE_LAYOUT, SECTION_NAME_SOURCEV_LAYOUT});
-		Log.d("LoadFromFile", "Sources: " + String.valueOf(mSources.length/6));
-		
+		//Log.d("LoadFromFile", "Sources: " + String.valueOf(mSources.length/6));
 		mGaint = getSectionArray(new String[] {SECTION_NAME_GAINT});
-		Log.d("LoadFromFile", "Gaint: " + String.valueOf(mGaint.length));
-		
+		//Log.d("LoadFromFile", "Gaint: " + String.valueOf(mGaint.length));
 		mVar = getSectionArray(new String[] {SECTION_NAME_VAR});
-		Log.d("LoadFromFile", "Var: " + String.valueOf(mVar.length));
-		
-		Log.d("LoadFromFile", "DP: " + String.valueOf(getDP()));
-		Log.d("LoadFromFile", "DT: " + String.valueOf(getDT()));
-		Log.d("LoadFromFile", "LP: " + String.valueOf(getLP()));
-		Log.d("LoadFromFile", "LT: " + String.valueOf(getLT()));
-		
+		//Log.d("LoadFromFile", "Var: " + String.valueOf(mVar.length));
+		//Log.d("LoadFromFile", "DP: " + String.valueOf(getDP()));
+		//Log.d("LoadFromFile", "DT: " + String.valueOf(getDT()));
+		//Log.d("LoadFromFile", "LP: " + String.valueOf(getLP()));
+		//Log.d("LoadFromFile", "LT: " + String.valueOf(getLT()));
 	}
-	
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 
 public class ModelGLSurfaceView extends GLSurfaceView {
@@ -17,7 +16,9 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 	}
 	
 	public void setModelRenderer(ModelRenderer modelRenderer) {
-		mModelRenderer = modelRenderer;		
+		mModelRenderer = modelRenderer;
+        //added to suppress OpenGL onfig error message
+        //super.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
 		setRenderer(mModelRenderer);		
 	}
 	
@@ -58,7 +59,6 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 				getPointFromEvent(mCurrentTouchPoint, event);	
 				
 				mModelRenderer.performTouch(mLastTouchPoint, mCurrentTouchPoint);
-				
 				mLastTouchPoint.x = mCurrentTouchPoint.x;
 				mLastTouchPoint.y = mCurrentTouchPoint.y;
 				
@@ -74,45 +74,33 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		}
 	}
 	
-	
 	// create from XML
 	public ModelGLSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setEGLContextClientVersion(2);
-		//setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+		setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 		setModelRenderer(new ModelRenderer());
 		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);		
 	}	
 	
 	@Override
 	public final boolean onTouchEvent(MotionEvent event) {
-		// TODO Auto-generated method stub		
-		Log.i("Touch", "Touch");
-		boolean retval = true;
 		if (null == mGestureHandler)
 			mGestureHandler = new GestureHandler();
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
-				Log.i("Touch", "ACTION_DOWN");
 				mGestureHandler.startGesture(GestureHandler.DRAG, event);
 				break;
-			
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
-				Log.i("Touch", "ACTION_UP");
-				mGestureHandler.completeGesture(event);				
+				mGestureHandler.completeGesture(event);
 				break;	
-				
 			case MotionEvent.ACTION_MOVE:
-				Log.i("Touch", "ACTION_MOVE");
-				if (mGestureHandler.handleGesture(event)) 
-				{	
-					this.requestRender();
-				} 
-				break;				
+				if (mGestureHandler.handleGesture(event))
+                    this.requestRender();
+				break;
 		}
 		
-		return retval;
+		return true;
 	}	
-
 }

@@ -65,6 +65,5 @@ public final class GLES20ShaderCode {
 			+	"  gl_FragColor = lightColor;													\n" 
 			//+	"  gl_FragColor = vColor;												    	\n"
 			+	"}																				\n";
-			
 }
 

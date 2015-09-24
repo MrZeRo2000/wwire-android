@@ -23,21 +23,15 @@ public abstract class GLES20Shader {
 		
 	}
 	
-	public int getProgram() {
-		return mProgram;
-	}
-	
 	public int createProgram() {
 		mProgram = GLES20.glCreateProgram();
 		
-		int vertexShader = 0;
-		int fragmentShader = 0;
 		if (null != mVertexShaderCode) {
-			 vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, mVertexShaderCode);
+			 int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, mVertexShaderCode);
 			 GLES20.glAttachShader(mProgram, vertexShader);
 		}	 
 		if (null != mFragmentShaderCode) {
-			fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, mFragmentShaderCode);
+			int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, mFragmentShaderCode);
 			GLES20.glAttachShader(mProgram, fragmentShader);
 		}				
 		
@@ -73,5 +67,4 @@ public abstract class GLES20Shader {
 		GLES20.glCompileShader(shader);
 		return shader;
 	}	
-	
 }
