@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.romanpulov.wwire"
         minSdkVersion 10
-        targetSdkVersion 23
-        versionName '1.0.3'
+        targetSdkVersion 28
+        versionName '1.0.4'
     }
 
     buildTypes {
@@ -17,8 +17,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
-}
-
-dependencies {
-
 }
