@@ -1,38 +1,26 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.model;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import android.content.Context;
-import android.os.Environment;
+import android.support.annotation.NonNull;
+
 
 public class WWireData {
 	
 	private static WWireData instance;
 	
-	public static void createInstance(Context context) {
-		if (null == instance)
-			instance = new WWireData(context);
-	}
-	
+	@NonNull
 	public static WWireData getInstance() {
+	    if (instance == null) {
+	        instance = new WWireData();
+        }
 		return instance;
 	}
-	
-	//folders
-	private String mPackageFileFolder;
-	private String mDataFileFolder;
-	
-	public String getPackageFileFolder() {
-		return mPackageFileFolder;
-	}
-	
-	public String getDataFileFolder() {
-		return mDataFileFolder;
-	}	
 	
 	//model
 	private float[] mSegments;
@@ -40,14 +28,6 @@ public class WWireData {
 	private float[] mGaint;
 	private float[] mVar;
 	
-	private void initFileFolders() {
-		StringBuilder dataFileFolderStringBuilder = new StringBuilder(Environment.getExternalStorageDirectory().toString());
-		dataFileFolderStringBuilder.append("/").append(mContext.getPackageName());
-		mPackageFileFolder = dataFileFolderStringBuilder.toString();
-		dataFileFolderStringBuilder.append("/data/");
-		mDataFileFolder = dataFileFolderStringBuilder.toString();
-	}
-
 	public float[] getSegments() {
 		return mSegments;
 	}
@@ -72,7 +52,6 @@ public class WWireData {
 		return (int) mVar[4];
 	}
 	
-	
 	public int getLP() {
 		return (int) (360.0 / mVar[3]);
 	}
@@ -88,18 +67,13 @@ public class WWireData {
 	static String SECTION_NAME_GAINT = "gain.t";	
 	static String SECTION_NAME_VAR = "var";
 
-	Context mContext;
-	ArrayList<String> dataFileList;
-	
-	private WWireData(Context context) {		
-		mContext = context;
-		dataFileList = new ArrayList<>();
-		initFileFolders();
+	private WWireData() {
+
 	}
 	
-	private void readSection(String sectionName, ArrayList<String> sectionValues) {
+	private static void readSection(List<String> data, String sectionName, ArrayList<String> sectionValues) {
 		boolean inSection = false;
-		for (String s:dataFileList) {
+		for (String s : data) {
 			if (s.startsWith(SECTION_KEY)) {
 				if (inSection)
 					break;
@@ -112,8 +86,9 @@ public class WWireData {
 				sectionValues.add(s);
 		}
 	}
-	
-	private float[] copyFromArrayList(ArrayList<String> str) {
+
+	@NonNull
+	private static float[] copyFromArrayList(@NonNull List<String> str) {
 		float[] res = new float[str.size()];
 		int i = 0;
 		for (String s : str) {
@@ -121,45 +96,48 @@ public class WWireData {
 		}
 		return res;
 	}
-	
-	private void loadFileList(String dataFileString) {
-		File dataFile = new File(dataFileString);
-		if (dataFile.exists()) {
-			dataFileList.clear();
+
+	@NonNull
+	private static List<String> loadFileList(@NonNull File file) {
+        List<String> data = new ArrayList<>();
+
+		if (file.exists()) {
 			try {
-				BufferedReader inBuf = new BufferedReader(new FileReader(dataFile));
+				BufferedReader inBuf = new BufferedReader(new FileReader(file));
 				while (true) {
 					String s = inBuf.readLine();
 			        if (s == null)
 			        	break;
-		        	dataFileList.add(s);
+                    data.add(s);
 				}
 				inBuf.close();
 			} catch ( IOException ioe ) {
                 ioe.printStackTrace();
             }
-		}		
+		}
+
+		return data;
 	}	
-	
-	private float[] getSectionArray(String[] sectionNames) {
+
+	@NonNull
+	private static float[] getSectionArray(@NonNull List<String> data, @NonNull String[] sectionNames) {
 		ArrayList<String> stringsSection = new ArrayList<>();
 		for (String s : sectionNames) {
-			readSection(s, stringsSection);
+			readSection(data, s, stringsSection);
 		}		
 		return copyFromArrayList(stringsSection);
 	}
 	
-	public void loadFromFile(String fileName) {
-		String dataFileString = getDataFileFolder() + fileName;
-		loadFileList(dataFileString);
+	public void loadFromFile(File file) {
+		List<String> data = loadFileList(file);
 		
-		mSegments = getSectionArray(new String[] {SECTION_NAME_SEGMENT_LAYOUT});
+		mSegments = getSectionArray(data, new String[] {SECTION_NAME_SEGMENT_LAYOUT});
 		//Log.d("LoadFromFile", "Segments: " + String.valueOf(mSegments.length/6));
-		mSources = getSectionArray(new String[] {SECTION_NAME_SOURCE_LAYOUT, SECTION_NAME_SOURCEV_LAYOUT});
+		mSources = getSectionArray(data, new String[] {SECTION_NAME_SOURCE_LAYOUT, SECTION_NAME_SOURCEV_LAYOUT});
 		//Log.d("LoadFromFile", "Sources: " + String.valueOf(mSources.length/6));
-		mGaint = getSectionArray(new String[] {SECTION_NAME_GAINT});
+		mGaint = getSectionArray(data, new String[] {SECTION_NAME_GAINT});
 		//Log.d("LoadFromFile", "Gaint: " + String.valueOf(mGaint.length));
-		mVar = getSectionArray(new String[] {SECTION_NAME_VAR});
+		mVar = getSectionArray(data, new String[] {SECTION_NAME_VAR});
 		//Log.d("LoadFromFile", "Var: " + String.valueOf(mVar.length));
 		//Log.d("LoadFromFile", "DP: " + String.valueOf(getDP()));
 		//Log.d("LoadFromFile", "DT: " + String.valueOf(getDT()));

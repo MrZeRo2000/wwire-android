@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -8,6 +8,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+
+import com.romanpulov.wwire.R;
 
 public class ModelLayout extends LinearLayout {
     private Context mContext;
@@ -22,7 +24,6 @@ public class ModelLayout extends LinearLayout {
         setupView(context);
     }
 
-
     public ModelLayout(Context context) {
         super(context);
         setupView(context);
@@ -31,10 +32,10 @@ public class ModelLayout extends LinearLayout {
     private void setupView(Context context) {
         mContext = context;
         inflate();
-        mModelGLSurfaceView = (ModelGLSurfaceView)findViewById(R.id.glsurfaceview);
+        mModelGLSurfaceView = findViewById(R.id.glsurfaceview);
 
         //setting up mode selector
-        Spinner modeSelector = (Spinner)findViewById(R.id.modeselector);
+        Spinner modeSelector = findViewById(R.id.modeselector);
         final String[] modeSelectorItems = {"NONE", "REVERT", "PAN", "ROTATE", "SCALE"};
         ArrayAdapter<String> modeSelectorAdapter = new ArrayAdapter<>(
                 mContext, android.R.layout.simple_spinner_item, modeSelectorItems);

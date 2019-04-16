@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.gles;
 
 public final class GLES20ShaderCode {
 	public static String LINE_VERTEX_SHADER_CODE =

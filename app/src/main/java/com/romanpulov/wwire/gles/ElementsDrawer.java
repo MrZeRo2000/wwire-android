@@ -1,8 +1,10 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.gles;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import com.romanpulov.wwire.GLES20Primitives.GLES20Matrix;
+import com.romanpulov.wwire.gles.GLES20Primitives;
+import com.romanpulov.wwire.gles.GLES20Primitives.GLES20Matrix;
+import com.romanpulov.wwire.model.WWireData;
 
 import android.opengl.GLES20;
 
@@ -64,8 +66,7 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
                 }
             }
 
-            GLES20Primitives primitives = new GLES20Primitives();
-            mSegments = primitives.new Line(
+            mSegments = new GLES20Primitives.Line(
                 segmentsData,
                 new float[] {0.8f, 0.8f, 0.8f}
             );
@@ -73,7 +74,7 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
             mSegments.createProgram();
 
             if (sourcesData.length>0) {
-                mSources = primitives.new Line(
+                mSources = new GLES20Primitives.Line(
                     sourcesData,
                     new float[] {0.698f, 0.2f, 0.2f}
                 );

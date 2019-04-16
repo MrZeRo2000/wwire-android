@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.model;
 
 public class DiagramData {
     private float mPixWidth;

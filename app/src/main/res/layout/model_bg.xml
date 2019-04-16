@@ -11,7 +11,8 @@
         android:layout_height="0dip"
         android:orientation="vertical"
         android:layout_weight="1">
-	    <com.romanpulov.wwire.ModelGLSurfaceView android:id="@+id/glsurfaceview"
+	    <com.romanpulov.wwire.view.ModelGLSurfaceView
+            android:id="@+id/glsurfaceview"
 	           android:layout_width="fill_parent"
 	           android:layout_height="fill_parent" />
     </LinearLayout>    

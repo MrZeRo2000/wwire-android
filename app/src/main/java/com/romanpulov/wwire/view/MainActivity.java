@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.view;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -17,6 +17,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import com.romanpulov.wwire.R;
+import com.romanpulov.wwire.gles.ElementsDrawer;
+import com.romanpulov.wwire.gles.GLES20DrawerFactory;
+import com.romanpulov.wwire.helper.AssetsHelper;
+import com.romanpulov.wwire.helper.StorageHelper;
+import com.romanpulov.wwire.model.WWireData;
 
 public class MainActivity extends Activity {
 	
@@ -40,10 +47,7 @@ public class MainActivity extends Activity {
 		final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 		//Log.d(TAG, "SupportsES2 = " + String.valueOf(supportsEs2));
-		
-		// create global data instance
-		WWireData.createInstance(this);
-		
+
 		// get DisplayMetrics and density
 		final DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);		
@@ -57,7 +61,7 @@ public class MainActivity extends Activity {
 		mModelSurfaceView.setDensity(displayMetrics.density);
 
 		// copy over default models
-		AssetsHelper.listAssets(this, "pre_inst_models");
+		AssetsHelper.listAssets(this, "pre_inst_models/");
 		
 		// setup controls
 		mFileSelector = setupFileSelector();
@@ -81,8 +85,8 @@ public class MainActivity extends Activity {
 	}
 	
 	private Spinner setupFileSelector() {
-		Spinner mFileSelector = (Spinner)findViewById(R.id.fileselector);
-		File fileList = new File(WWireData.getInstance().getDataFileFolder());
+		Spinner mFileSelector = findViewById(R.id.fileselector);
+		File fileList = StorageHelper.getDataFileFolder(getApplicationContext());
 		
 		String[] files = null;
 		if (fileList.exists()) {
@@ -105,7 +109,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 					// load new file
-					WWireData.getInstance().loadFromFile((String)parent.getItemAtPosition(position));
+					WWireData.getInstance().loadFromFile(StorageHelper.getDataFile(getApplicationContext(), (String)parent.getItemAtPosition(position)));
 					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
 				}

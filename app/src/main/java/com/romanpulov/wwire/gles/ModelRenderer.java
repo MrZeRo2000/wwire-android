@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.gles;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +12,8 @@ import android.opengl.GLU;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+
+import com.romanpulov.wwire.gles.GLES20Primitives;
 
 public class ModelRenderer implements GLSurfaceView.Renderer {
     // primitive objects
@@ -340,9 +342,8 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
     }
 
     public ModelRenderer() {
-        mGLES20Primitives = new GLES20Primitives();
         mTouchHandlerFactory = new TouchHandlerFactory();
-        mMatrix = mGLES20Primitives.new GLES20Matrix();
+        mMatrix = new GLES20Primitives.GLES20Matrix();
     }
 
     private void clear(GL10 gl) {
@@ -366,7 +367,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mMatrix.viewport, 0);
 
         // create axes
-        mAxes = mGLES20Primitives.new Axes();
+        mAxes = new GLES20Primitives.Axes();
         mAxes.initBuffers();
         mAxes.createProgram();
 

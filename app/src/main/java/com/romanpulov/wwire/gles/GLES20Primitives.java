@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.gles;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -13,7 +13,7 @@ public final class GLES20Primitives {
         void invalidate();
     }
 
-    public class GLES20Matrix {
+    public static class GLES20Matrix {
         // model and normal
         public float[] model = new float[16];
         public float[] normal = new float[16];
@@ -37,7 +37,7 @@ public final class GLES20Primitives {
         }
     }
 
-    public class Line extends GLES20Shader {
+    public static class Line extends GLES20Shader {
         // shader locations
         private int mLineAVertexLocation;
         private int mLineAColorLocation;
@@ -89,7 +89,7 @@ public final class GLES20Primitives {
         }
     }
 
-    public class Axes extends Line {
+    public static class Axes extends Line {
 
         public Axes() {
             super(
@@ -108,7 +108,7 @@ public final class GLES20Primitives {
         }
     }
 
-    public class Surface extends GLES20Shader {
+    public static class Surface extends GLES20Shader {
         //shader locations
         private int mSurfaceMVPMatrixHandle;
         private int mSurfaceModelMatrixHandle;
@@ -185,7 +185,7 @@ public final class GLES20Primitives {
     }
 
     @SuppressWarnings("unused")
-    public class Plate extends Surface {
+    public static class Plate extends Surface {
         public Plate() {
             super(
                 new float[] {
@@ -208,7 +208,7 @@ public final class GLES20Primitives {
     }
 
     @SuppressWarnings("unused")
-    public class BendedPlate extends Surface {
+    public static class BendedPlate extends Surface {
         public BendedPlate() {
             super(
                 new float[] {

@@ -1,4 +1,4 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.gles;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

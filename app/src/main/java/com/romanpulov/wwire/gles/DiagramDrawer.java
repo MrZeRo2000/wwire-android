@@ -1,8 +1,10 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.gles;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import com.romanpulov.wwire.GLES20Primitives.GLES20Matrix;
+import com.romanpulov.wwire.gles.GLES20Primitives;
+import com.romanpulov.wwire.gles.GLES20Primitives.GLES20Matrix;
+import com.romanpulov.wwire.model.DiagramData;
 
 import android.opengl.GLES20;
 
@@ -47,9 +49,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
         short[] indices = diagramData.getVertexIndices();
         short[] wfIndices = diagramData.getVertexWFIndices();
 
-        GLES20Primitives primitives = new GLES20Primitives();
-
-        mSurface = primitives.new Surface(
+        mSurface = new GLES20Primitives.Surface(
             vertex,
             normal,
             indices,
@@ -59,7 +59,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
         mSurface.initBuffers();
         mSurface.createProgram();
 
-        mWFSurface = primitives.new Surface(
+        mWFSurface = new GLES20Primitives.Surface(
             vertexWF,
             normal,
             wfIndices,

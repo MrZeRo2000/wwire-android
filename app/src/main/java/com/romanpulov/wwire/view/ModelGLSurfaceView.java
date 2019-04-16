@@ -1,10 +1,12 @@
-package com.romanpulov.wwire;
+package com.romanpulov.wwire.view;
 
 import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import com.romanpulov.wwire.gles.ModelRenderer;
 
 public class ModelGLSurfaceView extends GLSurfaceView {
 	

@@ -4,7 +4,8 @@
     android:layout_height="fill_parent">
 
       
-	 <com.romanpulov.wwire.ModelLayout android:id="@+id/modellayout"
+	 <com.romanpulov.wwire.view.ModelLayout
+         android:id="@+id/modellayout"
 	           android:layout_width="fill_parent"
 	           android:layout_height="0dip"
 	           android:layout_weight="1" />
