@@ -1,5 +1,7 @@
 package com.romanpulov.wwire.model;
 
+import android.support.annotation.NonNull;
+
 public class DiagramData {
     private float mPixWidth;
 
@@ -10,7 +12,7 @@ public class DiagramData {
     private int mDT;
     private int mDP;
 
-    float[] mGaint;
+    private float[] mGaint;
 
     //vertex
     private float[] mVertex;
@@ -51,7 +53,7 @@ public class DiagramData {
 
     private class VertexCalculator {
 
-        public void execute() {
+        void execute() {
             float[] point = new float[3];
 
             for (int p = 0; p < mLP; p++)
@@ -76,7 +78,7 @@ public class DiagramData {
     private class VertexIndexCalculator {
         int indPos;
 
-        public void execute() {
+        void execute() {
             indPos = 0;
             for (int i = 0; i<mLP2; i++) {
                 f1f(i);
@@ -225,7 +227,7 @@ public class DiagramData {
         private int[] mND;
         private int[] mNND;
 
-        public VertexNormalsCalculator() {
+        VertexNormalsCalculator() {
             mNP1 = new int[mLP * mLT];
             mNP2 = new int[mLP * mLT];
             mNU = new int[mLT];
@@ -234,7 +236,7 @@ public class DiagramData {
             mNND = new int[mLP];
         }
 
-        public void execute() {
+        void execute() {
             //calc points except upper and down
             f1n();
             f2n();
@@ -304,7 +306,7 @@ public class DiagramData {
             }
         }
 
-        private void f4n(int[] n, int[] nn, float[] res) {
+        private void f4n(@NonNull int[] n, int[] nn, float[] res) {
             float[] v = new float[3];
             v[0] = 0;
             v[1] = 0;
@@ -326,7 +328,7 @@ public class DiagramData {
     private class VertexWFIndexCalculator {
         private int indPos;
 
-        public void execute() {
+        void execute() {
             f1wf();
             f2wf();
         }
@@ -393,7 +395,7 @@ public class DiagramData {
         new VertexWFIndexCalculator().execute();
     }
 
-    public static void sphereToCube(float r, double phi, double thet, float[] point) {
+    private static void sphereToCube(float r, double phi, double thet, @NonNull float[] point) {
         double ct = Math.cos(thet);
         double cp = Math.cos(phi);
         double sp = Math.sin(phi);
@@ -404,7 +406,7 @@ public class DiagramData {
         point[2] = (float) (r*ct);
     }
 
-    public static void normalizeNormal(float[] v) {
+    private static void normalizeNormal(@NonNull float[] v) {
         for (int i = 0; i < v.length / 3; i ++) {
             int idx = i * 3;
             float len = (float) Math.sqrt(v[idx] * v[idx] + v[idx + 1] * v[idx + 1] + v[idx + 2] * v[idx + 2]);
@@ -416,7 +418,7 @@ public class DiagramData {
     }
 
     @SuppressWarnings("unused")
-    public static void normalizeVertex(float[] v) {
+    public static void normalizeVertex(@NonNull float[] v) {
         float max = 0.0f;
         for (int i = 0; i < v.length / 3; i ++) {
             int idx = i * 3;

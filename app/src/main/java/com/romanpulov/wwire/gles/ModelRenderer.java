@@ -13,11 +13,8 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 
-import com.romanpulov.wwire.gles.GLES20Primitives;
-
 public class ModelRenderer implements GLSurfaceView.Renderer {
     // primitive objects
-    private GLES20Primitives mGLES20Primitives;
     private GLES20Primitives.Axes mAxes;
     //drawer
     private GLES20Primitives.ModelDrawer mModelDrawer;
@@ -61,30 +58,30 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 
         private boolean mIsDirty = false;
 
-        protected void setDirty() {
+        void setDirty() {
             mIsDirty = true;
         }
 
-        public boolean getDirty() {
+        boolean getDirty() {
             return mIsDirty;
         }
 
         private PointF mOldPos;
         private PointF mNewPos;
 
-        public PointF getOldPos() {
+        PointF getOldPos() {
             return mOldPos;
         }
 
-        public PointF getNewPos() {
+        PointF getNewPos() {
             return mNewPos;
         }
 
-        public TouchHandler() {
+        TouchHandler() {
 
         }
 
-        public void updatePos(PointF oldPos, PointF newPos) {
+        void updatePos(PointF oldPos, PointF newPos) {
             mOldPos = oldPos;
             mNewPos = newPos;
         }
@@ -156,7 +153,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
         private float mRotateX;
         private float mRotateY;
 
-        public RotateHandler() {
+        RotateHandler() {
             super();
             accumulatedRotation = new float[16];
         }
@@ -259,15 +256,16 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
     }
 
     private class TouchHandlerFactory {
-        public static final int MODE_REVERT = 1;
-        public static final int MODE_PAN = 2;
-        public static final int MODE_ROTATE = 3;
-        public static final int MODE_SCALE = 4;
+        static final int MODE_REVERT = 1;
+        static final int MODE_PAN = 2;
+        static final int MODE_ROTATE = 3;
+        static final int MODE_SCALE = 4;
+
         private static final int MAX_MODE = 4;
 
         private Map<Integer, TouchHandler> mHandlers = new HashMap<>();
 
-        public TouchHandler getHandler(int handlerMode, boolean createIfNotExists) {
+        TouchHandler getHandler(int handlerMode, boolean createIfNotExists) {
             final String tag = "getHandler";
             final TouchHandler newHandler;
 
@@ -298,7 +296,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        public void applyTransform() {
+        void applyTransform() {
             // init matrix
             mMatrix.initModel();
 
@@ -312,14 +310,14 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        public void initHandlers() {
+        void initHandlers() {
             for (Map.Entry<Integer, TouchHandler> entry : mHandlers.entrySet()) {
                 entry.getValue().init();
             }
         }
 
         // state routines
-        public void saveState(Bundle state) {
+        void saveState(Bundle state) {
             for (int i = 1; i <= MAX_MODE; i ++) {
                 TouchHandler touchHandler = getHandler(i, false);
                 if ((null != touchHandler) && (touchHandler.getDirty())) {
@@ -329,7 +327,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        public void loadState(Bundle state) {
+        void loadState(Bundle state) {
             for (int i = 1; i <= MAX_MODE; i ++) {
                 final boolean handlerExists = state.getBoolean(this.getClass().toString() + String.valueOf(i), false);
                 if (handlerExists) {

@@ -9,7 +9,6 @@ import java.util.List;
 
 import android.support.annotation.NonNull;
 
-
 public class WWireData {
 	
 	private static WWireData instance;
@@ -60,18 +59,18 @@ public class WWireData {
 		return (int) (360.0 / mVar[4]);
 	}
 	
-	static String SECTION_KEY = "@";
-	static String SECTION_NAME_SEGMENT_LAYOUT = "segment.layout";
-	static String SECTION_NAME_SOURCE_LAYOUT = "source.layout";
-	static String SECTION_NAME_SOURCEV_LAYOUT = "sourcev.layout";
-	static String SECTION_NAME_GAINT = "gain.t";	
-	static String SECTION_NAME_VAR = "var";
+	private static String SECTION_KEY = "@";
+    private static String SECTION_NAME_SEGMENT_LAYOUT = "segment.layout";
+    private static String SECTION_NAME_SOURCE_LAYOUT = "source.layout";
+    private static String SECTION_NAME_SOURCEV_LAYOUT = "sourcev.layout";
+    private static String SECTION_NAME_GAINT = "gain.t";
+    private static String SECTION_NAME_VAR = "var";
 
 	private WWireData() {
 
 	}
 	
-	private static void readSection(List<String> data, String sectionName, ArrayList<String> sectionValues) {
+	private static void readSection(@NonNull List<String> data, String sectionName, ArrayList<String> sectionValues) {
 		boolean inSection = false;
 		for (String s : data) {
 			if (s.startsWith(SECTION_KEY)) {
