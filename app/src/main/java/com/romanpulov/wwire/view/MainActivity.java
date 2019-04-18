@@ -1,15 +1,10 @@
 package com.romanpulov.wwire.view;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Locale;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.ConfigurationInfo;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
@@ -20,45 +15,49 @@ import android.widget.Spinner;
 
 import com.romanpulov.wwire.R;
 import com.romanpulov.wwire.gles.ElementsDrawer;
-import com.romanpulov.wwire.gles.GLES20DrawerFactory;
+import com.romanpulov.wwire.gles.DrawerFactory;
 import com.romanpulov.wwire.helper.AssetsHelper;
 import com.romanpulov.wwire.helper.StorageHelper;
 import com.romanpulov.wwire.model.WWireData;
 
 public class MainActivity extends Activity {
-	
-	public static final String TAG = "MainActivity";
+
+	private WWireData mData = WWireData.createEmpty();
 	
 	private ModelGLSurfaceView mModelSurfaceView;
-	
+
+	//want to keep this one for consistency and possible future use
+	@SuppressWarnings("unused,FieldCanBeLocal")
 	private Spinner mFileSelector;
+
 	private Spinner mViewSelector;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		final String tag = "OnCreate";
-		//Log.d(tag, null == savedInstanceState ? "Bundle is null" : "Bundle is not null");
-		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		// check opengles support
-		final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
-		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
-		//Log.d(TAG, "SupportsES2 = " + String.valueOf(supportsEs2));
+
+		//restore saved data
+		if (savedInstanceState != null) {
+            mData = savedInstanceState.getParcelable(WWireData.class.getName());
+        }
 
 		// get DisplayMetrics and density
 		final DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);		
 		
 		// set up default drawer		
-		ModelLayout modelLayout = (ModelLayout)findViewById(R.id.modellayout);
+		ModelLayout modelLayout = findViewById(R.id.modellayout);
 		mModelSurfaceView = modelLayout.getModelGLSurfaceView(); 
-		mModelSurfaceView.getModelRenderer().setModelDrawer(GLES20DrawerFactory.getInstance().getModelDrawer(ElementsDrawer.class));
+		mModelSurfaceView.getModelRenderer().setModelDrawer(DrawerFactory.getInstance().getModelDrawer(mData, ElementsDrawer.class));
 		
 		// set up density 
 		mModelSurfaceView.setDensity(displayMetrics.density);
+
+		//restore saved handler state
+		if (savedInstanceState != null) {
+            mModelSurfaceView.getModelRenderer().loadHandlerState(savedInstanceState);
+        }
 
 		// copy over default models
 		AssetsHelper.listAssets(this, "pre_inst_models/");
@@ -71,53 +70,37 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt("FileSelector", mFileSelector.getSelectedItemPosition());
-		outState.putInt("ViewSelector", mViewSelector.getSelectedItemPosition());
+        outState.putParcelable(WWireData.class.getName(), mData);
 		mModelSurfaceView.getModelRenderer().saveHandlerState(outState);
-	}
-	
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		mFileSelector.setSelection(savedInstanceState.getInt("FileSelector"));
-		mViewSelector.setSelection(savedInstanceState.getInt("ViewSelector"));
-		mModelSurfaceView.getModelRenderer().loadHandlerState(savedInstanceState);
 	}
 	
 	private Spinner setupFileSelector() {
 		Spinner mFileSelector = findViewById(R.id.fileselector);
-		File fileList = StorageHelper.getDataFileFolder(getApplicationContext());
-		
-		String[] files = null;
-		if (fileList.exists()) {
-				files = fileList.list(new FilenameFilter()  {
-				
-				@Override
-				public boolean accept(File dir, String filename) {
-					return filename.toUpperCase(Locale.US).endsWith("WW1");
-				}
-			});
-		}
-		
+
+        String[] files = StorageHelper.getDataFileNameList(getApplicationContext());
+
 		if (null != files) {
 			ArrayAdapter<String> fileSelectorAdapter = new ArrayAdapter<>(
 					this, android.R.layout.simple_spinner_item, files);
 			fileSelectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			mFileSelector.setAdapter(fileSelectorAdapter);
 			mFileSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 					// load new file
-					WWireData.getInstance().loadFromFile(StorageHelper.getDataFile(getApplicationContext(), (String)parent.getItemAtPosition(position)));
-					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
+                    File dataFile = StorageHelper.getDataFile(getApplicationContext(), (String)parent.getItemAtPosition(position));
+                    if ((mData == null) || (!mData.compareFile(dataFile))) {
+                        mData = WWireData.fromFile(dataFile);
+                        DrawerFactory.getInstance().invalidateModelDrawers();
+                        mModelSurfaceView.getModelRenderer().setModelDrawer(DrawerFactory.getInstance().getModelDrawer(mData, ElementsDrawer.class));
+                        mModelSurfaceView.getModelRenderer().performRevert();
+                        mViewSelector.setSelection(0);
+                    }
 					mModelSurfaceView.requestRender();
 				}
 
 				@Override
-				public void onNothingSelected(AdapterView<?> arg0) {
-
-				}
+				public void onNothingSelected(AdapterView<?> arg0) {}
 			});
 		}
 		
@@ -125,18 +108,16 @@ public class MainActivity extends Activity {
 	}
 	
 	private Spinner setupViewSelector() {
-		final Spinner mViewSelector = (Spinner)findViewById(R.id.viewselector);
+		final Spinner mViewSelector = findViewById(R.id.viewselector);
 		ArrayAdapter<String> fileSelectorAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, GLES20DrawerFactory.DrawerListTitle);
+                this, android.R.layout.simple_spinner_item, DrawerFactory.DrawerListTitle);
 		fileSelectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mViewSelector.setAdapter(fileSelectorAdapter);
 		mViewSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				//Log.d(MainActivity.TAG, "setupViewSelector.onItemSelected position = " + String.valueOf(position));
-				
-				if ((1 == position) && (! WWireData.getInstance().gaintAvailable())) {
+				if ((1 == position) && (mData != null) && (!mData.gaintAvailable())) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setTitle(android.R.string.dialog_alert_title);
 					builder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -150,7 +131,7 @@ public class MainActivity extends Activity {
 					builder.create().show();					
 				} else {				
 					mModelSurfaceView.getModelRenderer().setModelDrawer(
-						GLES20DrawerFactory.getInstance().getModelDrawer(GLES20DrawerFactory.DrawerListClass[position])
+						DrawerFactory.getInstance().getModelDrawer(mData, DrawerFactory.DrawerListClass[position])
 							);
 					mModelSurfaceView.getModelRenderer().getModelDrawer().invalidate();
 					mModelSurfaceView.requestRender();
@@ -158,8 +139,7 @@ public class MainActivity extends Activity {
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-			}
+			public void onNothingSelected(AdapterView<?> arg0) {}
 		});
 		
 		return mViewSelector;

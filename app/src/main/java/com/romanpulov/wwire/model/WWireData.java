@@ -7,20 +7,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-public class WWireData {
-	
-	private static WWireData instance;
-	
-	@NonNull
-	public static WWireData getInstance() {
-	    if (instance == null) {
-	        instance = new WWireData();
-        }
-		return instance;
-	}
-	
+public class WWireData implements Parcelable {
+
+    //
+    private String mFileName;
+
+    public String getFileName() {
+        return mFileName;
+    }
+
+    public boolean compareFile(File f) {
+        return (mFileName != null) && (f != null) && (mFileName.equals(f.getName()));
+    }
+
 	//model
 	private float[] mSegments;
 	private float[] mSources;
@@ -65,6 +68,18 @@ public class WWireData {
     private static String SECTION_NAME_SOURCEV_LAYOUT = "sourcev.layout";
     private static String SECTION_NAME_GAINT = "gain.t";
     private static String SECTION_NAME_VAR = "var";
+
+    @NonNull
+    public static WWireData createEmpty() {
+        return new WWireData();
+    }
+
+    public static WWireData fromFile(File f) {
+        WWireData instance = new WWireData();
+        instance.loadFromFile(f);
+        instance.mFileName = f.getName();
+        return instance;
+    }
 
 	private WWireData() {
 
@@ -143,4 +158,37 @@ public class WWireData {
 		//Log.d("LoadFromFile", "LP: " + String.valueOf(getLP()));
 		//Log.d("LoadFromFile", "LT: " + String.valueOf(getLT()));
 	}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+    	dest.writeString(mFileName);
+        dest.writeFloatArray(mSegments);
+        dest.writeFloatArray(mSources);
+        dest.writeFloatArray(mGaint);
+        dest.writeFloatArray(mVar);
+    }
+
+    private WWireData(@NonNull Parcel in) {
+    	mFileName = in.readString();
+        mSegments = in.createFloatArray();
+        mSources = in.createFloatArray();
+        mGaint = in.createFloatArray();
+        mVar = in.createFloatArray();
+    }
+
+    public static final Parcelable.Creator<WWireData> CREATOR
+            = new Parcelable.Creator<WWireData>() {
+        public WWireData createFromParcel(@NonNull Parcel in) {
+            return new WWireData(in);
+        }
+
+        public WWireData[] newArray(int size) {
+            return new WWireData[size];
+        }
+    };
 }

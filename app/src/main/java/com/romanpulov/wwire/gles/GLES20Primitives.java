@@ -7,6 +7,10 @@ import android.opengl.Matrix;
 
 public final class GLES20Primitives {
 
+    private GLES20Primitives() {
+        throw new AssertionError();
+    }
+
     public interface ModelDrawer {
         void drawElements(GL10 gl, GLES20Matrix matrix);
         void initElements(GLES20Matrix matrix);

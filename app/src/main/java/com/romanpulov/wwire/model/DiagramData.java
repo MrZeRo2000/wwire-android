@@ -3,7 +3,8 @@ package com.romanpulov.wwire.model;
 import android.support.annotation.NonNull;
 
 public class DiagramData {
-    private float mPixWidth;
+    private final WWireData mData;
+    private final float mPixWidth;
 
     private int mLP;
     private int mLP2;
@@ -45,8 +46,9 @@ public class DiagramData {
         return mVertexWFIndices;
     }
 
-    public DiagramData(float pixWidth) {
+    public DiagramData(WWireData data, float pixWidth) {
         super();
+        mData = data;
         mPixWidth = pixWidth;
         initData();
     }
@@ -358,14 +360,13 @@ public class DiagramData {
 
     private void initData() {
         //reading data from WWireData
-        WWireData wd = WWireData.getInstance();
-        mLP = wd.getLP() / 2;
+        mLP = mData.getLP() / 2;
         mLP2 = mLP / 2;
-        mLT = wd.getLT();
+        mLT = mData.getLT();
         mLT2 = mLT / 2;
-        mDT = wd.getDT();
-        mDP = wd.getDP();
-        mGaint = wd.getGaint();
+        mDT = mData.getDT();
+        mDP = mData.getDP();
+        mGaint = mData.getGaint();
 
         //calc vertex
         //  init arrays

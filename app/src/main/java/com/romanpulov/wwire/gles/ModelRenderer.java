@@ -405,14 +405,18 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             mModelDrawer.drawElements(gl, mMatrix);
     }
 
+    public void performRevert() {
+        // init matrix
+        mMatrix.initModel();
+        // reset handlers
+        mTouchHandlerFactory.initHandlers();
+    }
+
     public final void performTouch(PointF oldPos, PointF newPos) {
         //Log.i("Coords", String.valueOf(oldPos.x) + "/" + String.valueOf(oldPos.y) + "/" + String.valueOf(newPos.x) + "/" + String.valueOf(newPos.y));
 
         if (TouchHandlerFactory.MODE_REVERT == mHandlerMode) {
-            // init matrix
-            mMatrix.initModel();
-            // reset handlers
-            mTouchHandlerFactory.initHandlers();
+            performRevert();
         } else {
             final TouchHandler mTouchHandler = mTouchHandlerFactory.getHandler(mHandlerMode, true);
             if (null != mTouchHandler) {

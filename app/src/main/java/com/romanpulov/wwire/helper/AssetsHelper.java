@@ -10,6 +10,7 @@ import android.content.res.AssetManager;
 import android.support.annotation.NonNull;
 
 public class AssetsHelper {
+
     public static void listAssets(@NonNull Context context, @NonNull String path) {
         AssetManager assetManager = context.getResources().getAssets();
 
@@ -49,5 +50,9 @@ public class AssetsHelper {
                 e.printStackTrace();
             }
         }
+    }
+
+    private AssetsHelper() {
+        throw new AssertionError();
     }
 }

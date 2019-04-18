@@ -5,16 +5,22 @@ import javax.microedition.khronos.opengles.GL10;
 import com.romanpulov.wwire.gles.GLES20Primitives;
 import com.romanpulov.wwire.gles.GLES20Primitives.GLES20Matrix;
 import com.romanpulov.wwire.model.DiagramData;
+import com.romanpulov.wwire.model.WWireData;
 
 import android.opengl.GLES20;
 
 public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
+    private final WWireData mData;
 
     public static String title = "Diagram";
 
     private GLES20Primitives.Surface mSurface;
     private GLES20Primitives.Surface mWFSurface;
     boolean prepared = false;
+
+    DiagramDrawer(WWireData data) {
+        mData = data;
+    }
 
     @Override
     public void drawElements(GL10 gl, GLES20Matrix matrix) {
@@ -41,7 +47,7 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
     public void initElements(GLES20Matrix matrix) {
         float pixWidth = (float) 2.0 / Math.min(matrix.viewport[3], matrix.viewport[2]);
 
-        DiagramData diagramData = new DiagramData(pixWidth);
+        DiagramData diagramData = new DiagramData(mData, pixWidth);
 
         float[] vertex = diagramData.getVertex();
         float[] vertexWF = diagramData.getVertexWF();
