@@ -91,6 +91,7 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 			mGestureHandler = new GestureHandler();
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
+			    performClick();
 				mGestureHandler.startGesture(GestureHandler.DRAG, event);
 				break;
 			case MotionEvent.ACTION_UP:
@@ -104,5 +105,10 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		}
 		
 		return true;
-	}	
+	}
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
 }
