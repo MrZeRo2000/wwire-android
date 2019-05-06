@@ -1,7 +1,5 @@
 package com.romanpulov.wwire.gles;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import com.romanpulov.wwire.gles.GLES20Primitives;
 import com.romanpulov.wwire.gles.GLES20Primitives.GLES20Matrix;
 import com.romanpulov.wwire.model.DiagramData;
@@ -12,18 +10,16 @@ import android.opengl.GLES20;
 public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
     private final WWireData mData;
 
-    public static String title = "Diagram";
-
     private GLES20Primitives.Surface mSurface;
     private GLES20Primitives.Surface mWFSurface;
-    boolean prepared = false;
+    private boolean prepared = false;
 
     DiagramDrawer(WWireData data) {
         mData = data;
     }
 
     @Override
-    public void drawElements(GL10 gl, GLES20Matrix matrix) {
+    public void drawElements(GLES20Matrix matrix) {
         //depth test on
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         
@@ -38,9 +34,9 @@ public class DiagramDrawer implements GLES20Primitives.ModelDrawer{
             initElements(matrix);
             prepared = true;
         }
-        mSurface.draw(gl, matrix);
+        mSurface.draw(matrix);
         GLES20.glLineWidth(1.0f);
-        mWFSurface.draw(gl, matrix);
+        mWFSurface.draw(matrix);
     }
 
     @Override

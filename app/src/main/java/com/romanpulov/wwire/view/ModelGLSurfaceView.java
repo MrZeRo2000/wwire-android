@@ -17,7 +17,7 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		return mModelRenderer;
 	}
 	
-	public void setModelRenderer(ModelRenderer modelRenderer) {
+	private void setModelRenderer(ModelRenderer modelRenderer) {
 		mModelRenderer = modelRenderer;
         //added to suppress OpenGL onfig error message
         //super.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
@@ -32,8 +32,8 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		static final int NONE = 0;
 		static final int DRAG = 1;		
 		
-		PointF mCurrentTouchPoint = new PointF();
-		PointF mLastTouchPoint = new PointF();
+		final PointF mCurrentTouchPoint = new PointF();
+		final PointF mLastTouchPoint = new PointF();
 
 		int mGesture = NONE;
 		
@@ -42,13 +42,13 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 			point.y = event.getY();
 		}
 		
-		public void startGesture(int gesture, MotionEvent event) {
+		void startGesture(int gesture, MotionEvent event) {
 			getPointFromEvent(mLastTouchPoint, event);
 			getPointFromEvent(mCurrentTouchPoint, event);
 			mGesture = gesture;
 		}
 		
-		public boolean handleGesture(MotionEvent event) {
+		boolean handleGesture(MotionEvent event) {
 			if (mGesture == DRAG) {
 				return handleDragGesture(event);
 			} else
@@ -69,7 +69,7 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 				return false;
 		}
 
-		public void completeGesture(MotionEvent event) {
+		void completeGesture(MotionEvent event) {
 			getPointFromEvent(mLastTouchPoint, event);	
 			mModelRenderer.completeTouch();
 			mGesture = NONE;
@@ -106,9 +106,4 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		
 		return true;
 	}
-
-    @Override
-    public boolean performClick() {
-        return super.performClick();
-    }
 }

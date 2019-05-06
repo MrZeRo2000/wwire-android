@@ -5,25 +5,23 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.opengl.GLES20;
 
-public abstract class GLES20Shader {
-	protected int mProgram;          //program		
-	protected FloatBuffer mVFB;      //vertex buffer
-	protected FloatBuffer mNFB;      //normals buffer
-	protected ShortBuffer mISB;      //indices buffer
-	protected FloatBuffer mCFB;      //color buffer
+abstract class GLES20Shader {
+	int mProgram;          //program
+	FloatBuffer mVFB;      //vertex buffer
+	FloatBuffer mNFB;      //normals buffer
+	ShortBuffer mISB;      //indices buffer
+	FloatBuffer mCFB;      //color buffer
 	
-	protected String mVertexShaderCode;
-	protected String mFragmentShaderCode;
+	String mVertexShaderCode;
+	String mFragmentShaderCode;
 	
-	public GLES20Shader() {
+	GLES20Shader() {
 		
 	}
 	
-	public int createProgram() {
+	int createProgram() {
 		mProgram = GLES20.glCreateProgram();
 		
 		if (null != mVertexShaderCode) {
@@ -39,7 +37,7 @@ public abstract class GLES20Shader {
 		return mProgram;
 	}
 	
-	public static FloatBuffer fromArrayToFloatBuffer(float[] a) {
+	static FloatBuffer fromArrayToFloatBuffer(float[] a) {
 		ByteBuffer bb = ByteBuffer.allocateDirect(a.length * 4);
 		bb.order(ByteOrder.nativeOrder());
 		FloatBuffer fb = bb.asFloatBuffer();
@@ -48,7 +46,7 @@ public abstract class GLES20Shader {
 		return fb;
 	}
 	
-	public static ShortBuffer fromArrayToShortBuffer(short[] a) {
+	static ShortBuffer fromArrayToShortBuffer(short[] a) {
 		ByteBuffer bb = ByteBuffer.allocateDirect(a.length * 2);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
@@ -59,9 +57,9 @@ public abstract class GLES20Shader {
 	
 	public abstract void initBuffers();
 	
-	public abstract void draw(GL10 gl, GLES20Primitives.GLES20Matrix matrix);
+	public abstract void draw(GLES20Primitives.GLES20Matrix matrix);
 
-	protected int loadShader(int type, String source)  {
+	private int loadShader(int type, String source)  {
 		int shader = GLES20.glCreateShader(type);
 		GLES20.glShaderSource(shader, source);
 		GLES20.glCompileShader(shader);

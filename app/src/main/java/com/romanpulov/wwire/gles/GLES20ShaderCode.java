@@ -1,14 +1,14 @@
 package com.romanpulov.wwire.gles;
 
-public final class GLES20ShaderCode {
-	public static String LINE_VERTEX_SHADER_CODE =
+final class GLES20ShaderCode {
+	public static final String LINE_VERTEX_SHADER_CODE =
 			"uniform mat4 u_MVPMatrix;      					\n"
 		+	"attribute vec3 aPosition;							\n"
 		+	"void main() {										\n"
 		+	" gl_Position = u_MVPMatrix*vec4(aPosition, 1.0);	\n"
 		+	"}													\n";
 
-	public static String LINE_FRAGMENT_SHADER_CODE = 
+	public static final String LINE_FRAGMENT_SHADER_CODE =
 			"#ifdef GL_FRAGMENT_PRECISION_HIGH		\n"
 		+	"precision highp float;					\n"
 		+	"#else									\n"
@@ -19,7 +19,7 @@ public final class GLES20ShaderCode {
 		+	" gl_FragColor = vec4(uColor, 1.0);		\n"
 		+	"}										\n";
 
-	public static String SURFACE_VERTEX_SHADER_CODE =
+	public static final String SURFACE_VERTEX_SHADER_CODE =
 				"uniform mat4 u_MVPMatrix;      					\n"
 			+	"uniform mat4 u_ModelMatrix;							\n"
 			+	"uniform mat4 u_NormalMatrix;							\n"
@@ -39,7 +39,7 @@ public final class GLES20ShaderCode {
 			+	" gl_Position = u_MVPMatrix * vec4(aPosition, 1.0);	\n"
 			+	"}													\n";
 
-			public static String SURFACE_FRAGMENT_SHADER_CODE = 
+			public static final String SURFACE_FRAGMENT_SHADER_CODE =
 			"#ifdef GL_FRAGMENT_PRECISION_HIGH			\n"
 			+	"precision highp float;					\n"
 			+	"#else									\n"

@@ -1,7 +1,5 @@
 package com.romanpulov.wwire.gles;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import com.romanpulov.wwire.gles.GLES20Primitives.GLES20Matrix;
 import com.romanpulov.wwire.model.WWireData;
 
@@ -15,14 +13,12 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
     private float[] mSegmentsData;
     private float[] mSourcesData;
 
-    public static String title = "Model";
-
-    GLES20Primitives.Line mSegments;
-    GLES20Primitives.Line mSources;
-    boolean prepared = false;
+    private GLES20Primitives.Line mSegments;
+    private GLES20Primitives.Line mSources;
+    private boolean prepared = false;
 
     @Override
-    public void drawElements(GL10 gl, GLES20Matrix matrix) {
+    public void drawElements(GLES20Matrix matrix) {
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
         if (!prepared) {
@@ -31,9 +27,9 @@ public class ElementsDrawer implements GLES20Primitives.ModelDrawer {
                 prepared = true;
         }
         if (prepared && (null != mSegments)) {
-            mSegments.draw(gl, matrix);
+            mSegments.draw(matrix);
             if (null != mSources) {
-                mSources.draw(gl, matrix);
+                mSources.draw(matrix);
             }
         }
     }

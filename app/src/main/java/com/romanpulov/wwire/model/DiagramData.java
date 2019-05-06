@@ -220,14 +220,14 @@ public class DiagramData {
 
     private class VertexNormalsCalculator {
         //normals
-        private int[] mNP1;
-        private int[] mNP2;
+        private final int[] mNP1;
+        private final int[] mNP2;
         //upper points
-        private int[] mNU;
-        private int[] mNNU;
+        private final int[] mNU;
+        private final int[] mNNU;
         //down points
-        private int[] mND;
-        private int[] mNND;
+        private final int[] mND;
+        private final int[] mNND;
 
         VertexNormalsCalculator() {
             mNP1 = new int[mLP * mLT];

@@ -16,10 +16,6 @@ public class WWireData implements Parcelable {
     //
     private String mFileName;
 
-    public String getFileName() {
-        return mFileName;
-    }
-
     public boolean compareFile(File f) {
         return (mFileName != null) && (f != null) && (mFileName.equals(f.getName()));
     }
@@ -62,12 +58,12 @@ public class WWireData implements Parcelable {
 		return (int) (360.0 / mVar[4]);
 	}
 	
-	private static String SECTION_KEY = "@";
-    private static String SECTION_NAME_SEGMENT_LAYOUT = "segment.layout";
-    private static String SECTION_NAME_SOURCE_LAYOUT = "source.layout";
-    private static String SECTION_NAME_SOURCEV_LAYOUT = "sourcev.layout";
-    private static String SECTION_NAME_GAINT = "gain.t";
-    private static String SECTION_NAME_VAR = "var";
+	private static final String SECTION_KEY = "@";
+    private static final String SECTION_NAME_SEGMENT_LAYOUT = "segment.layout";
+    private static final String SECTION_NAME_SOURCE_LAYOUT = "source.layout";
+    private static final String SECTION_NAME_SOURCEV_LAYOUT = "sourcev.layout";
+    private static final String SECTION_NAME_GAINT = "gain.t";
+    private static final String SECTION_NAME_VAR = "var";
 
     @NonNull
     public static WWireData createEmpty() {
@@ -142,7 +138,7 @@ public class WWireData implements Parcelable {
 		return copyFromArrayList(stringsSection);
 	}
 	
-	public void loadFromFile(File file) {
+	private void loadFromFile(File file) {
 		List<String> data = loadFileList(file);
 		
 		mSegments = getSectionArray(data, new String[] {SECTION_NAME_SEGMENT_LAYOUT});

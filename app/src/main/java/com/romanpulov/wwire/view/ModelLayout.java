@@ -36,7 +36,7 @@ public class ModelLayout extends LinearLayout {
 
         //setting up mode selector
         Spinner modeSelector = findViewById(R.id.modeselector);
-        final String[] modeSelectorItems = {"NONE", "REVERT", "PAN", "ROTATE", "SCALE"};
+        final String[] modeSelectorItems = context.getResources().getStringArray(R.array.mode_selector_items);
         ArrayAdapter<String> modeSelectorAdapter = new ArrayAdapter<>(
                 mContext, android.R.layout.simple_spinner_item, modeSelectorItems);
         modeSelectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -47,6 +47,8 @@ public class ModelLayout extends LinearLayout {
             public void onItemSelected(AdapterView<?> parent, View view,
                     int position, long id) {
                 mModelGLSurfaceView.getModelRenderer().setHandlerMode(position);
+                //to support immediate render after reverting
+                mModelGLSurfaceView.requestRender();
             }
 
             @Override

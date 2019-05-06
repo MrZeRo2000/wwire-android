@@ -3,7 +3,17 @@
 
     <string name="app_name">WWire</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="warning_calc_results_not_available">Calculation results are not available</string>
+    <string-array name="drawer_titles">
+        <item>Model</item>
+        <item>Diagram</item>
+    </string-array>
+    <string-array name="mode_selector_items">
+        <item>NONE</item>
+        <item>REVERT</item>
+        <item>PAN</item>
+        <item>ROTATE</item>
+        <item>SCALE</item>
+    </string-array>
 
 </resources>

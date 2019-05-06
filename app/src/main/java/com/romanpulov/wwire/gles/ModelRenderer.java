@@ -19,12 +19,12 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
     //drawer
     private GLES20Primitives.ModelDrawer mModelDrawer;
 
-    private TouchHandlerFactory mTouchHandlerFactory;
+    private final TouchHandlerFactory mTouchHandlerFactory;
 
     private int mHandlerMode;
     private float mDensity;
 
-    private GLES20Primitives.GLES20Matrix mMatrix;
+    private final GLES20Primitives.GLES20Matrix mMatrix;
 
     public void setModelDrawer(GLES20Primitives.ModelDrawer modelDrawer) {
         mModelDrawer = modelDrawer;
@@ -34,12 +34,11 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
         return mModelDrawer;
     }
 
-    public TouchHandlerFactory getTouchHandlerFactory() {
-        return mTouchHandlerFactory;
-    }
-
     public void setHandlerMode(int handlerMode) {
         mHandlerMode = handlerMode;
+        if (mHandlerMode == TouchHandlerFactory.MODE_REVERT) {
+            performRevert();
+        }
     }
 
     public void setDensity(float density) {
@@ -86,17 +85,17 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             mNewPos = newPos;
         }
 
-        public void init() {
+        void init() {
             mIsDirty = false;
         }
 
-        public abstract void perform();
+        protected abstract void perform();
 
-        public abstract void apply();
+        protected abstract void apply();
 
         // state routines
-        public abstract void saveState(Bundle state);
-        public abstract void loadState(Bundle state);
+        protected abstract void saveState(Bundle state);
+        protected abstract void loadState(Bundle state);
     }
 
     private class PanHandler extends TouchHandler {
@@ -148,15 +147,10 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 
     private class RotateHandler extends TouchHandler {
         // rotation support
-        private float[] accumulatedRotation = new float[16];
+        private final float[] accumulatedRotation = new float[16];
 
         private float mRotateX;
         private float mRotateY;
-
-        RotateHandler() {
-            super();
-            accumulatedRotation = new float[16];
-        }
 
         @Override
         public void init() {
@@ -238,9 +232,9 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             float[] coords = new float[4];
             GLU.gluUnProject((float)mMatrix.viewport[2]/2.0f, (float)mMatrix.viewport[3]/2.0f, 0.0f,
                     mMatrix.modelViewMatrix, 0, mMatrix.projection, 0, mMatrix.viewport, 0, coords, 0);
-            Matrix.translateM(mMatrix.model, 0, coords[0], coords[1], coords[2]);
+            //Matrix.translateM(mMatrix.model, 0, coords[0], coords[1], coords[2]);
             Matrix.scaleM(mMatrix.model, 0, rate, rate, rate);
-            Matrix.translateM(mMatrix.model, 0, -coords[0], -coords[1], -coords[2]);
+            //Matrix.translateM(mMatrix.model, 0, -coords[0], -coords[1], -coords[2]);
         }
 
         // state routines
@@ -263,16 +257,15 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 
         private static final int MAX_MODE = 4;
 
-        private Map<Integer, TouchHandler> mHandlers = new HashMap<>();
+        private final Map<Integer, TouchHandler> mHandlers = new HashMap<>();
 
         TouchHandler getHandler(int handlerMode, boolean createIfNotExists) {
-            final String tag = "getHandler";
-            final TouchHandler newHandler;
-
             if (mHandlers.containsKey(handlerMode)) {
                 return mHandlers.get(handlerMode);
             } else {
                 if (createIfNotExists) {
+                    final TouchHandler newHandler;
+
                     switch (handlerMode) {
                     case MODE_PAN:
                         newHandler = new PanHandler();
@@ -286,6 +279,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
                     default:
                         return null;
                     }
+
                     mHandlers.put(handlerMode, newHandler);
                     newHandler.init();
 
@@ -304,15 +298,15 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             mMatrix.calcModelViewMatrix();
 
             // apply transformation for all dirty handlers
-            for (Map.Entry<Integer, TouchHandler> entry : mHandlers.entrySet()) {
-                if (entry.getValue().getDirty())
-                    entry.getValue().apply();
+            for (TouchHandler value : mHandlers.values()){
+                if (value.getDirty())
+                    value.apply();
             }
         }
 
         void initHandlers() {
-            for (Map.Entry<Integer, TouchHandler> entry : mHandlers.entrySet()) {
-                entry.getValue().init();
+            for (TouchHandler value : mHandlers.values()) {
+                value.init();
             }
         }
 
@@ -321,7 +315,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             for (int i = 1; i <= MAX_MODE; i ++) {
                 TouchHandler touchHandler = getHandler(i, false);
                 if ((null != touchHandler) && (touchHandler.getDirty())) {
-                    state.putBoolean(this.getClass().toString() + String.valueOf(i), true);
+                    state.putBoolean(this.getClass().toString() + i, true);
                     touchHandler.saveState(state);
                 }
             }
@@ -329,7 +323,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 
         void loadState(Bundle state) {
             for (int i = 1; i <= MAX_MODE; i ++) {
-                final boolean handlerExists = state.getBoolean(this.getClass().toString() + String.valueOf(i), false);
+                final boolean handlerExists = state.getBoolean(this.getClass().toString() + i, false);
                 if (handlerExists) {
                     TouchHandler touchHandler = getHandler(i, true);
                     touchHandler.loadState(state);
@@ -344,7 +338,7 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
         mMatrix = new GLES20Primitives.GLES20Matrix();
     }
 
-    private void clear(GL10 gl) {
+    private void clear() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
     }
 
@@ -391,18 +385,18 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // clear buffer
-        clear(gl);
+        clear();
 
         // calc ModelViewProjection
         Matrix.multiplyMM(mMatrix.mvp, 0, mMatrix.view, 0, mMatrix.model, 0);        
         Matrix.multiplyMM(mMatrix.mvp, 0, mMatrix.projection, 0, mMatrix.mvp, 0);
        
         // draw axes
-        mAxes.draw(gl, mMatrix);
+        mAxes.draw(mMatrix);
         
         // draw scene elements
         if (null != mModelDrawer)
-            mModelDrawer.drawElements(gl, mMatrix);
+            mModelDrawer.drawElements(mMatrix);
     }
 
     public void performRevert() {

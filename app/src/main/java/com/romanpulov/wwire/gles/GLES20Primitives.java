@@ -1,7 +1,5 @@
 package com.romanpulov.wwire.gles;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
@@ -12,24 +10,24 @@ public final class GLES20Primitives {
     }
 
     public interface ModelDrawer {
-        void drawElements(GL10 gl, GLES20Matrix matrix);
+        void drawElements(GLES20Matrix matrix);
         void initElements(GLES20Matrix matrix);
         void invalidate();
     }
 
     public static class GLES20Matrix {
         // model and normal
-        public float[] model = new float[16];
-        public float[] normal = new float[16];
+        public final float[] model = new float[16];
+        public final float[] normal = new float[16];
         // view
-        public float[] view = new float[16];
-        public int[] viewport = new int[4];
+        public final float[] view = new float[16];
+        public final int[] viewport = new int[4];
         // projection
-        public float[] projection = new float[16];
+        public final float[] projection = new float[16];
         //modelview
-        public float[] modelViewMatrix = new float[16];
+        public final float[] modelViewMatrix = new float[16];
         // resulting
-        public float[] mvp = new float[16];
+        public final float[] mvp = new float[16];
 
         public void initModel() {
             Matrix.setIdentityM(model, 0);
@@ -48,8 +46,8 @@ public final class GLES20Primitives {
         private int mLineMVPMatrixHandle;
 
         //shader data
-        private float mLineVFA[];
-        private float mLineCFA[];
+        private final float[] mLineVFA;
+        private final float[] mLineCFA;
 
         public Line(float[] lineVFA, float[] lineCFA) {
             super();
@@ -78,7 +76,7 @@ public final class GLES20Primitives {
         }
 
         @Override
-        public void draw(GL10 gl, GLES20Matrix matrix) {
+        public void draw(GLES20Matrix matrix) {
             GLES20.glUseProgram(mProgram);
             //Log.d("Draw", getClass().toString() + " use program = " + String.valueOf(mProgram));
             GLES20.glVertexAttribPointer(mLineAVertexLocation, 3, GLES20.GL_FLOAT, false, 0, mVFB);
@@ -122,13 +120,13 @@ public final class GLES20Primitives {
         private int mSurfaceAColorLocation;
 
         //shader data
-        private float[] mSurfaceVFA;
-        private float[] mSurfaceNFA;
-        private short[] mSurfaceISA;
-        private float[] mSurfaceCFA;
+        private final float[] mSurfaceVFA;
+        private final float[] mSurfaceNFA;
+        private final short[] mSurfaceISA;
+        private final float[] mSurfaceCFA;
 
         //surface mode
-        private int mSurfaceMode;
+        private final int mSurfaceMode;
 
         public Surface(float[] surfaceVFA, float[] surfaceNFA, short[] surfaceISA, float[] surfaceCFA, int surfaceMode) {
             super();
@@ -167,7 +165,7 @@ public final class GLES20Primitives {
         }
 
         @Override
-        public void draw(GL10 gl, GLES20Matrix matrix) {
+        public void draw(GLES20Matrix matrix) {
             GLES20.glUseProgram(mProgram);
             //Log.d("Draw", getClass().toString() + " use program = " + String.valueOf(mProgram));
             //vertex
