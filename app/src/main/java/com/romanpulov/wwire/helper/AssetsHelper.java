@@ -26,7 +26,7 @@ public class AssetsHelper {
                             FileOutputStream outStream = null;
 
                             try {
-                                inStream = assetManager.open(path.concat(s));
+                                inStream = assetManager.open(path.concat(File.separator).concat(s));
                                 outStream = new FileOutputStream(destFile);
 
                                 byte[] buf = new byte[1024];

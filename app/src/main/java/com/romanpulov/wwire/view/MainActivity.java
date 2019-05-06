@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
         }
 
         // copy over default models
-        AssetsHelper.listAssets(this, "pre_inst_models/");
+        AssetsHelper.listAssets(this, "pre_inst_models");
 
         // setup controls
         mFileSelector = setupFileSelector();
