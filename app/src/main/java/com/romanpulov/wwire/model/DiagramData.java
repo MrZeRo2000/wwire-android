@@ -245,13 +245,16 @@ public class DiagramData {
             f3n();
 
             for (int i = 0; i < mLP * mLT; i++) {
-                //Log.d("normals", String.valueOf(i) + " np1 = " + String.valueOf(mNP1[i]) + " np2 = " + String.valueOf(mNP2[i]));
+                //zeros in addition operations are for better visibility only
+                //noinspection PointlessArithmeticExpression
                 mNormal[i * 3 + 0] =
                         (mVertex[mNP1[i] * 3 + 1] - mVertex[i * 3 + 1]) * (mVertex[mNP2[i] * 3 + 2] - mVertex[i * 3 + 2]) -
                         (mVertex[mNP2[i] * 3 + 1] - mVertex[i * 3 + 1]) * (mVertex[mNP1[i] * 3 + 2] - mVertex[i * 3 + 2]);
+                //noinspection PointlessArithmeticExpression
                 mNormal[i * 3 + 1] =
                         (mVertex[mNP1[i] * 3 + 2] - mVertex[i * 3 + 2]) * (mVertex[mNP2[i] * 3 + 0] - mVertex[i * 3 + 0]) -
                         (mVertex[mNP2[i] * 3 + 2] - mVertex[i * 3 + 2]) * (mVertex[mNP1[i] * 3 + 0] - mVertex[i * 3 + 0]);
+                //noinspection PointlessArithmeticExpression
                 mNormal[i * 3 + 2] =
                         (mVertex[mNP1[i] * 3 + 0] - mVertex[i * 3 + 0]) * (mVertex[mNP2[i] * 3 + 1] - mVertex[i * 3 + 1]) -
                         (mVertex[mNP2[i] * 3 + 0] - mVertex[i * 3 + 0]) * (mVertex[mNP1[i] * 3 + 1] - mVertex[i * 3 + 1]);

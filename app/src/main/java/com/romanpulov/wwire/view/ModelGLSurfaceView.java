@@ -106,4 +106,11 @@ public class ModelGLSurfaceView extends GLSurfaceView {
 		
 		return true;
 	}
+
+	//without this method onTouchEvent is reporting that performClick() is never called
+    @SuppressWarnings("EmptyMethod")
+	@Override
+    public boolean performClick() {
+        return super.performClick();
+    }
 }

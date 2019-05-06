@@ -1,8 +1,5 @@
 package com.romanpulov.wwire.gles;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLES20;
@@ -12,6 +9,7 @@ import android.opengl.GLU;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.util.SparseArray;
 
 public class ModelRenderer implements GLSurfaceView.Renderer {
     // primitive objects
@@ -257,10 +255,10 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
 
         private static final int MAX_MODE = 4;
 
-        private final Map<Integer, TouchHandler> mHandlers = new HashMap<>();
+        private final SparseArray<TouchHandler> mHandlers = new SparseArray<>();
 
         TouchHandler getHandler(int handlerMode, boolean createIfNotExists) {
-            if (mHandlers.containsKey(handlerMode)) {
+            if (mHandlers.get(handlerMode) != null) {
                 return mHandlers.get(handlerMode);
             } else {
                 if (createIfNotExists) {
@@ -298,15 +296,16 @@ public class ModelRenderer implements GLSurfaceView.Renderer {
             mMatrix.calcModelViewMatrix();
 
             // apply transformation for all dirty handlers
-            for (TouchHandler value : mHandlers.values()){
+            for (int i = 0, size = mHandlers.size(); i < size; i++) {
+                TouchHandler value = mHandlers.valueAt(i);
                 if (value.getDirty())
                     value.apply();
             }
         }
 
         void initHandlers() {
-            for (TouchHandler value : mHandlers.values()) {
-                value.init();
+            for (int i = 0, size = mHandlers.size(); i < size; i++) {
+                mHandlers.valueAt(i).init();
             }
         }
 
